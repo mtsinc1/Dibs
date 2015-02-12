@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<!--
+    Context configuration file for the Dibs web app.
+-->
+
+<Context path="/Dibs"
+    docBase="/videos/workspace/Dibs/target/dibs-0.0.1-SNAPSHOT"
+    debug="0" privileged="true"
+>
+    <Loader
+        loaderClass="org.springframework.instrument.classloading.tomcat.TomcatInstrumentableClassLoader"
+    />
+    <Valve className="org.apache.catalina.authenticator.FormAuthenticator"
+         disableProxyCaching="false" />
+    <Environment name="neo4j/data" value="/var/lib/neo4j/data"
+         type="java.lang.String" override="false"/>
+</Context>
