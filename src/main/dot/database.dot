@@ -1,0 +1,9 @@
+digraph database {
+	staff [ name  ];
+	forum [ name ];
+	role [ name ];
+
+	staff -> forum [ label = dibs ];
+	staff -> forum [ label = moderates ];
+	staff -> role [ label = has_role ];
+}

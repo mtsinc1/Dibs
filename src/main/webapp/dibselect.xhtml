@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<!--Dibs Selector view... Selects user to edit or report view -->
+<html xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:rich="http://richfaces.org/rich"
+    xmlns:a4j="http://richfaces.org/a4j"
+>
+<h:head>
+    <title>Dibs Forum selection</title>
+</h:head>
+<h:body>
+    <f:view>
+        <h:panelGrid columns="1">
+            <h:panelGroup>
+                <h:form id="form1">
+
+                    <h:panelGrid columns="1">
+                        <f:facet name="header">
+                DIBS Selection and Display
+                </f:facet>
+                        <rich:pickList id="ctlShuttle"
+                            value="#{dibsSelectorBean.choices}"
+                            sourceCaption="Forums"
+                            targetCaption="Selected"
+                            removeAllVisible="false"
+                            copyAllVisible="false"
+                            listWidth="170px" listHeight="100px"
+                            orderable="true"
+                        >
+                            <f:selectItems
+                                value="#{dibsSelectorBean.forums}"
+                            />
+                            <f:ajax event="change"
+                                action="#{dibsSelectorBean.listChanged}"
+                            />
+                            <f:converter converterId="arrayStringToLongConverter"/>
+                        </rich:pickList>
+                        <h:outputText
+                            value="Use the up/down arrows to indicate priorities, with most-wanted at the top."
+                        />
+                        <h:messages />
+                    </h:panelGrid>
+                    <h:commandButton value="Save" id="ctlSave"
+                        action="#{dibsSelectorBean.doSave}"
+                    />
+                    <h:commandButton value="Cancel" id="ctlCancel"
+                        immediate="true"
+                        action="#{dibsSelectorBean.doCancel}"
+                    />
+                </h:form>
+            </h:panelGroup>
+        </h:panelGrid>
+    </f:view>
+</h:body>
+</html>

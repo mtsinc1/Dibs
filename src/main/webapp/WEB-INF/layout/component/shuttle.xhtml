@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Shuttle Control -->
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:rich="http://richfaces.org/rich"
+    xmlns:a4j="http://richfaces.org/a4j"
+    template="/WEB-INF/layout/reportLayout.xhtml"
+>
+    <ui:component>
+        <h:panelGrid id="shuttle" columns="4">
+            <h:panelGrid id="srcCol" columns="1">
+                <f:facet name="header">#{modelsrcCaption}</f:facet>
+                <h:SelectManyListbox id="src"
+                    value="#{model.src}"
+                >
+                    <f:selectItem value="#{model.srcList}" />
+                </h:SelectManyListbox>
+            </h:panelGrid>
+            <h:panelGrid id="twixt" columns="1">
+                <h:commandButton value="&gt;">
+                    <f:ajax listener="#{controller.toSrc}"
+                        render="src dst"
+                    />
+                </h:commandButton>
+                <h:commandButton value="&gt;&gt;">
+                    <f:ajax listener="#{controller.toSrcAll}"
+                        render="src dst"
+                    />
+                </h:commandButton>
+                <h:commandButton value="&lt;">
+                    <f:ajax listener="#{controller.toDst}"
+                        render="src dst"
+                    />
+                </h:commandButton>
+                <h:commandButton value="&lt;&lt;">
+                    <f:ajax listener="#{controller.toDstAll}"
+                        render="src dst"
+                    />
+                </h:commandButton>
+            </h:panelGrid>
+            <h:panelGrid id="dstCol" columns="1">
+                <f:facet name="header">#{modeldstCaption}</f:facet>
+                <h:SelectManyListbox id="dst"
+                    value="#{model.dst}"
+                >
+                    <f:selectItem value="#{model.dstList}" />
+                </h:SelectManyListbox>
+            </h:panelGrid>
+            <h:panelGrid id="upDown" columns="1">
+                <h:commandButton value="Up"
+                    value="#{controller.toUp}"
+                />
+                <h:commandButton value="Down"
+                    value="#{controller.toTop}"
+                />
+                <h:commandButton value="Top"
+                    value="#{controller.toDown}"
+                />
+                <h:commandButton value="Bottom"
+                    value="#{controller.toBottom}"
+                />
+            </h:panelGrid>
+        </h:panelGrid>
+    </ui:component>
+</ui:composition>

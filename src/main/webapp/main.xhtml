@@ -1,0 +1,61 @@
+<?xml version="1.0"?>
+<!--Dibs Selector view... Selects user to edit or report view -->
+<html xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:t="http://myfaces.apache.org/tomahawk"
+    xmlns:rich="http://richfaces.org/rich"
+    xmlns:a4j="http://richfaces.org/a4j"
+>
+<h:head>
+    <title>Dibs Selection and Display</title>
+</h:head>
+<h:body>
+    <h:panelGrid columns="1">
+        <h:messages/>
+        <h:panelGroup>
+            <h:form id="form1">
+                <h:panelGrid columns="1">
+                    <f:facet name="header">
+                DIBS Selection and Display
+                </f:facet>
+                    <h:outputLabel for="selectPerson"
+                        value="Staff member"
+                    />
+                    <h:selectOneMenu id="selectPerson"
+                        value="#{selectorBean.selectPerson}"
+                        onchange="document.form1.submit()"
+                    >
+                        <f:selectItems
+                            value="#{selectorBean.personList}"
+                        />
+                        <a4j:ajax execute="@this"
+                            listener="#{selectorBean.doDibs}"
+                        />
+                    </h:selectOneMenu>
+                    <h:commandButton id="selStaff" action="#{selectorBean.doDibs}" value="Dibs"/>
+                </h:panelGrid>
+            </h:form>
+            <h:form id="form2">
+                <h:panelGrid columns="1">
+                    <f:facet name="header">
+                DIBS Display
+                </f:facet>
+                    <h:commandLink id="goPeople"
+                        action="#{selectorBean.goPeople}"
+                        value="Show Staff"
+                    />
+                    <h:commandLink id="goForums"
+                        action="#{selectorBean.goForums}"
+                        value="Show Forums"
+                    />
+                    <h:commandLink id="goReport"
+                        action="report"
+                        value="Dibs Report"
+                    />
+                </h:panelGrid>
+            </h:form>
+        </h:panelGroup>
+    </h:panelGrid>
+</h:body>
+</html>

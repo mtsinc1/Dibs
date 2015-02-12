@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+    <!--Dibs Table view -->
+<html xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html" xmlns:t="http://myfaces.apache.org/tomahawk"
+    xmlns:rich="http://richfaces.org/rich" xmlns:a4j="http://richfaces.org/a4j"
+>
+    <ui:composition>
+        <h:panelGrid columns="1">
+            <h:panelGroup>
+                <h:form>
+                    <rich:dataTable width="755" id="resultsList"
+                        rows="10" columnClasses="listingCol1,listingCol2,listingCol3"
+                        value="#{searchResults}" var="item"
+                    >
+                        <f:facet name="header">
+                            <h:column>
+                                <h:outputText value="Forum Name" />
+                            </h:column>
+                            <h:column>
+                                <h:outputText value="Current Moderator(s)" />
+                            </h:column>
+                            <h:column>
+                                <h:outputText value="Dibs Priority" />
+                            </h:column>
+
+                        </f:facet>
+                        <h:column>
+                            <h:outputText value="#{dibs.forumName}" />
+                        </h:column>
+                        <h:column>
+                            <h:outputText value="#{dibs.forumModerator}" />
+                        </h:column>
+                        <h:column>
+                            <h:outputText value="Droplist" />
+                        </h:column>
+                    </rich:dataTable>
+                </h:form>
+            </h:panelGroup>
+        </h:panelGrid>
+    </ui:composition>
+</html>

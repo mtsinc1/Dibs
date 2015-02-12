@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app id="WebApp_ID" version="2.4"
+    xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+>
+    <display-name>Dibs</display-name>
+
+    <context-param id="faces-project_stage">
+        <description>
+            Tell the runtime where we are in the project development
+            lifecycle.  Valid values are: 
+            Development, UnitTest, SystemTest, or Production.
+            The runtime will display helpful hints to correct common mistakes
+            when the value is Development.
+        </description>
+        <param-name>javax.faces.PROJECT_STAGE</param-name>
+        <param-value>Production</param-value>
+    </context-param>
+
+    <context-param>
+        <param-name>javax.faces.STATE_SAVING_METHOD</param-name>
+        <param-value>server</param-value>
+    </context-param>
+
+    <!-- ====== PRETTYFACES ====== <context-param id="prettyfaces-annotated"> 
+        <param-name>com.ocpsoft.pretty.BASE_PACKAGES</param-name> <param-value>com.winemgmtsys.backing</param-value> 
+        </context-param> <filter> <filter-name>Pretty Filter</filter-name> 
+        <filter-class>com.ocpsoft.pretty.PrettyFilter</filter-class> </filter> 
+        <filter-mapping> <filter-name>Pretty Filter</filter-name> <url-pattern>/admin/*</url-pattern> 
+        <dispatcher>FORWARD</dispatcher> <dispatcher>REQUEST</dispatcher> 
+        <dispatcher>ERROR</dispatcher> </filter-mapping> <filter-mapping> 
+        <filter-name>Pretty Filter</filter-name> <url-pattern>/basic/*</url-pattern> 
+        <dispatcher>FORWARD</dispatcher> <dispatcher>REQUEST</dispatcher> 
+        <dispatcher>ERROR</dispatcher> </filter-mapping> -->
+
+    <!-- ========= RICHFACES ====== -->
+
+    <!-- Plugging the "Blue Sky" skin into the project -->
+    <context-param>
+        <param-name>org.richfaces.skin</param-name>
+        <param-value>blueSky</param-value>
+    </context-param>
+
+    <!-- ========= SPRING ========= -->
+    <!-- Spring Framework support -->
+    <context-param id="spring-beans">
+        <description>
+                This is a comma-separated list of Spring bean definition
+                files. The Spring web dispatcher servlet(s) are not
+                configured here, since they are inferred by the servlet
+                by constructing a filename using the servlet's logical
+                name as a basis.
+                </description>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>/WEB-INF/applicationContext.xml</param-value>
+        <!-- <param-value>/WEB-INF/applicationContext.xml</param-value> -->
+    </context-param>
+
+    <listener id="spring-contextloader">
+        <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+    </listener>
+
+    <!-- ======= FACELETS ====== -->
+
+
+    <!-- Facelets (RichFaces 4) -->
+    <context-param>
+        <param-name>javax.facelets.REFRESH_PERIOD</param-name>
+        <param-value>1</param-value>
+    </context-param>
+    <context-param>
+        <param-name>javax.faces.DEFAULT_SUFFIX</param-name>
+        <param-value>.xhtml</param-value>
+    </context-param>
+    <context-param id="Facelets-skip-comments">
+        <param-name>javax.faces.SKIP_COMMENTS</param-name>
+        <param-value>true</param-value>
+    </context-param>
+
+    <!-- Custom Facelets Tags <context-param id="wms-custom-tags"> 
+        <param-name>javax.facelets.LIBRARIES</param-name> <param-value>/WEB-INF/facelets/wms.taglib.xml</param-value> 
+        </context-param> -->
+
+    <!-- ========= JSF CORE ========= -->
+    <servlet id="faces-servlet">
+        <servlet-name>Faces Servlet</servlet-name>
+        <servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>Faces Servlet</servlet-name>
+        <url-pattern>*.jsf</url-pattern>
+    </servlet-mapping>
+    <welcome-file-list>
+        <welcome-file>index.html</welcome-file>
+        <welcome-file>index.htm</welcome-file>
+        <welcome-file>index.jsp</welcome-file>
+        <welcome-file>default.html</welcome-file>
+        <welcome-file>default.htm</welcome-file>
+        <welcome-file>default.jsp</welcome-file>
+    </welcome-file-list>
+
+    <error-page>
+        <exception-type>com.sun.faces.mgbean.ManagedBeanCreationException</exception-type>
+        <location>/apperror.jsp</location>
+    </error-page>
+    <error-page>
+        <error-code>500</error-code>
+        <location>/apperror.jsp</location>
+    </error-page>
+
+<!-- 
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>Automatic TLS Forwarding</web-resource-name>
+            <url-pattern>/*</url-pattern>
+        </web-resource-collection>
+        <user-data-constraint>
+            <transport-guarantee>CONFIDENTIAL</transport-guarantee>
+        </user-data-constraint>
+    </security-constraint>
+ -->
+ 
+    <env-entry>
+        <description>Location of the graph database files</description>
+        <env-entry-name>neo4j/data</env-entry-name>
+        <env-entry-type>java.lang.String</env-entry-type>
+        <env-entry-value>/var/lib/neo4j/data</env-entry-value>
+    </env-entry>
+</web-app>

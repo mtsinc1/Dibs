@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+<!--Dibs Selector view... Selects user to edit or report view -->
+<html xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:rich="http://richfaces.org/rich"
+    xmlns:a4j="http://richfaces.org/a4j"
+>
+<h:head>
+    <title>Dibs current status</title>
+</h:head>
+<h:body>
+    <h1>Forum Dibs Status</h1>
+    <rich:collapsiblePanel switchType="client" id="pnlCurrent"
+        header="Unclaimed Forums"
+    >
+        <div style="height: 300px; overflow-y: scroll">
+            <h:dataTable id="tblUnclaimed" var="row"
+                value="#{reportBean.unclaimed}"
+            >
+                <h:column>
+                    <f:facet name="head">Forum</f:facet>
+            #{row}
+        </h:column>
+            </h:dataTable>
+        </div>
+    </rich:collapsiblePanel>
+    <!--  -->
+    <rich:collapsiblePanel switchType="client" id="pnlDibForum"
+        header="Dibs on Forums"
+    >
+        <div style="height: 300px; overflow-y: scroll">
+            <h:dataTable id="tblClaimed" var="row"
+                value="#{reportBean.claimedList}"
+            >
+                <h:column>
+                    <f:facet name="head">Forum</f:facet>
+            #{row.name}
+        </h:column>
+                <h:column>
+                    <f:facet name="head">Dibs</f:facet>
+                    <ui:repeat var="name" value="#{row.dibsList}">
+            #{name.name}
+            </ui:repeat>
+                </h:column>
+            </h:dataTable>
+        </div>
+    </rich:collapsiblePanel>
+    <!--  -->
+    <rich:collapsiblePanel switchType="client" id="pnlModerator"
+        header="Moderator Dibs"
+    >
+        <div style="height: 300px; overflow-y: scroll">
+            <h:dataTable id="tblModerators" var="row"
+                value="#{reportBean.dibsMakerList}"
+            >
+                <h:column>
+                    <f:facet name="head">Moderator</f:facet>
+            #{row.name}
+        </h:column>
+                <h:column>
+                    <f:facet name="head">Dibs</f:facet>
+                    <ui:repeat var="name"
+                        value="#{row.forumNames}"
+                    >
+            #{name}
+            </ui:repeat>
+                </h:column>
+            </h:dataTable>
+        </div>
+    </rich:collapsiblePanel>
+</h:body>
+</html>
