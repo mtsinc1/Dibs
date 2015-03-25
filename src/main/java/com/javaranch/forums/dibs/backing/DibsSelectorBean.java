@@ -38,6 +38,18 @@ public class DibsSelectorBean implements Serializable {
 	 * ID of the person being connected.
 	 */
 	private long personId;
+	
+	/**
+	 * Details of person (name)
+	 */
+	private Person person;
+
+	/**
+	 * @return the person
+	 */
+	public Person getPerson() {
+		return person;
+	}
 
 	/**
 	 * Connection type. Dibs or Moderates.
@@ -181,9 +193,8 @@ public class DibsSelectorBean implements Serializable {
 		this.personId = personId;
 		this.connectionType = connectionType;
 
-		// TODO: load existing connections and init picklist
-		// selections
 		Person p = this.personRepository.findOne(personId);
+		this.person = p;
 		Set<Forum> forums = p.getDibsList();
 		final int fsize = forums.size();
 		List<Long> fpicked = new ArrayList<Long>(fsize);

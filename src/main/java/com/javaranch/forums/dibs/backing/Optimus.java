@@ -38,12 +38,12 @@ public class Optimus {
 	}
 
 	private void loadPersons() {
-		dBLoader.loadPersons();
+		//dBLoader.loadPersons();
 		JSFUtils.addInfoMessage("Persons have been loaded.");
 	}
 
 	public void loadForums() {
-		dBLoader.loadForumList();
+		//dBLoader.loadForumList();
 		JSFUtils.addInfoMessage("Forums have been loaded.");
 	}
 }

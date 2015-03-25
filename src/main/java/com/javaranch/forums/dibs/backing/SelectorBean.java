@@ -18,6 +18,7 @@ import com.javaranch.forums.dibs.persistence.model.Dibs;
 import com.javaranch.forums.dibs.persistence.model.Person;
 import com.javaranch.forums.dibs.persistence.repository.ForumRepository;
 import com.javaranch.forums.dibs.persistence.repository.PersonRepository;
+import com.javaranch.forums.dibs.persistence.service.DBLoader;
 
 
 /**
@@ -88,6 +89,8 @@ public class SelectorBean implements Serializable {
 		this.personRepository = personRepository;
 	}
 
+
+	
 	// --
 	private List<SelectItem> personList;
 
@@ -138,7 +141,7 @@ public class SelectorBean implements Serializable {
 			plist.add(new SelectItem(person.nodeId, person
 				.getName()));
 		}
-		trans.close();
+		trans.success();
 		return plist;
 	}
 
@@ -162,5 +165,23 @@ public class SelectorBean implements Serializable {
 
 	public String goReport() {
 		return "forumList";
+	}
+
+	@ManagedProperty("#{dbLoader}")
+	private DBLoader dbLoader;
+	
+	/**
+	 * @param dbLoader the dbLoader to set
+	 */
+	public void setDbLoader(DBLoader dbLoader) {
+		this.dbLoader = dbLoader;
+	}
+
+	public String goLoad() {
+		//JSFUtils.
+//		dbLoader.loadPersons();
+//		dbLoader.loadForumList();
+		this.personList = null;
+		return null;
 	}
 }

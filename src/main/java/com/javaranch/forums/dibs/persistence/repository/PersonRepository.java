@@ -1,6 +1,20 @@
 package com.javaranch.forums.dibs.persistence.repository;
 
+import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
+import org.springframework.data.repository.query.Param;
+
 import com.javaranch.forums.dibs.persistence.model.Person;
 
-public interface PersonRepository extends GraphRepository<Person> {}
+public interface PersonRepository extends GraphRepository<Person> {
+	
+	/**
+	 * Test to see if a Person with this name already exists.
+	 * @param name Name of Person to check. 
+	 * @return 0 unless the Person already exists. Otherwise
+	 * number of Person nodes matching name.
+	 */
+	@Query(value="MATCH (n:Person {name: {name}}) return COUNT(*)")
+	public int hasName(@Param("name") String name);
+	
+}

@@ -14,11 +14,11 @@
         <h:panelGrid columns="1">
             <h:panelGroup>
                 <h:form id="form1">
-
                     <h:panelGrid columns="1">
                         <f:facet name="header">
                 DIBS Selection and Display
                 </f:facet>
+                        <h:outputText value="Moderator: #{dibsSelectorBean.person.name}" />
                         <rich:pickList id="ctlShuttle"
                             value="#{dibsSelectorBean.choices}"
                             sourceCaption="Forums"
@@ -34,7 +34,9 @@
                             <f:ajax event="change"
                                 action="#{dibsSelectorBean.listChanged}"
                             />
-                            <f:converter converterId="arrayStringToLongConverter"/>
+                            <f:converter
+                                converterId="arrayStringToLongConverter"
+                            />
                         </rich:pickList>
                         <h:outputText
                             value="Use the up/down arrows to indicate priorities, with most-wanted at the top."
@@ -44,8 +46,8 @@
                     <h:commandButton value="Save" id="ctlSave"
                         action="#{dibsSelectorBean.doSave}"
                     />
-                    <h:commandButton value="Cancel" id="ctlCancel"
-                        immediate="true"
+                    <h:commandButton value="Cancel"
+                        id="ctlCancel" immediate="true"
                         action="#{dibsSelectorBean.doCancel}"
                     />
                 </h:form>

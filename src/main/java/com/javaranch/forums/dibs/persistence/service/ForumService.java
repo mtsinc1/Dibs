@@ -5,7 +5,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.conversion.EndResult;
@@ -14,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.javaranch.forums.dibs.persistence.model.Forum;
 import com.javaranch.forums.dibs.persistence.model.Person;
-	import com.javaranch.forums.dibs.persistence.repository.ForumRepository;
+import com.javaranch.forums.dibs.persistence.repository.ForumRepository;
 import com.javaranch.forums.dibs.persistence.repository.PersonRepository;
 
 
@@ -31,7 +32,7 @@ public class ForumService {
 
 	/* Logger */
 
-	final private static Logger log = Logger
+	final private static Logger log = LogManager
 		.getLogger(ForumService.class);
 
 	// --
