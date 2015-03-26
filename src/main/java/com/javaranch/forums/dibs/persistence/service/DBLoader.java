@@ -89,8 +89,8 @@ public class DBLoader {
 		int personNew = 0;
 
 		String line;
-		while ((line = rdr.readLine()) != null) {
-			if (CrudeYAMLParser.isItemLine(line)) {
+		while (((line = rdr.readLine()) != null) &&
+			 CrudeYAMLParser.isItemLine(line)) {
 				// line value is person name ("- name"). Add if
 				// not present.
 				String[] v = CrudeYAMLParser.extractItem(line);
@@ -103,7 +103,6 @@ public class DBLoader {
 				} else {
 					personExists++;
 				}
-			}
 		}
 		log.info(personExists + " persons already existed.");
 		log.info(personNew + " persons added.");
