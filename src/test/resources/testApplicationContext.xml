@@ -23,7 +23,17 @@
     <tx:annotation-driven
         transaction-manager="neo4jTransactionManager" />
 
+
+    <bean id="graphDbFactory"
+        class="org.neo4j.test.TestGraphDatabaseFactory" />
+    <bean id="graphDatabaseService" scope="singleton"
+        destroy-method="shutdown" factory-bean="graphDbFactory"
+        factory-method="newImpermanentDatabase"
+    >
+    </bean>
+
     <neo4j:config storeDirectory="/tmp/dibsdata"
+        graphDatabaseService="graphDatabaseService"
         base-package="com.javaranch.forums.dibs.persistence.model" />
     <neo4j:repositories
         base-package="com.javaranch.forums.dibs.persistence.repository" />
