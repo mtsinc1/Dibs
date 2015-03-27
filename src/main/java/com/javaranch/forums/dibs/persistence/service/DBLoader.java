@@ -52,6 +52,15 @@ public class DBLoader {
 	@Autowired
 	private transient PersonRepository personRepository;
 
+	
+	/**
+	 * Default Constructor
+	 */
+	
+	public DBLoader() {
+		
+	}
+	
 	/**
 	 * Load YAML-format data
 	 * 

@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.javaranch.forums.dibs.persistence.repository.ForumRepository;
 import com.javaranch.forums.dibs.persistence.repository.PersonRepository;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -28,12 +29,18 @@ public class TestDBLoader {
 	@Autowired
 	private PersonRepository personRepository;
 	
+	@Autowired
+	private ForumRepository forumRepository;
+	
 	@Test
 	public void test1() throws IOException {
 		System.out.println("LOADER="+dbLoader);
 		
 		long npersons = personRepository.count();
 		assertEquals(0, npersons);
+		
+		long nforums = forumRepository.count();
+		assertEquals(0, nforums);
 		
 		File f = new File("src/test/resources/test.yml");
 		System.out.println("FILE='"+f.getAbsolutePath()+"'");
@@ -47,7 +54,7 @@ public class TestDBLoader {
 		assertEquals(3, npersons);
 		
 		
-		int i23 = 23;
-		i23++;
+		nforums = forumRepository.count();
+		assertEquals(4, nforums);
 	}
 }

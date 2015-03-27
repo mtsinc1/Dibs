@@ -33,7 +33,7 @@
                             listener="#{selectorBean.doDibs}"
                         />
                     </h:selectOneMenu>
-                    <h:commandButton id="selStaff" action="#{selectorBean.doDibs}" value="Dibs"/>
+                    <h:commandButton id="selStaff" action="#{selectorBean.doDibs}" value="Edit Dibs"/>
                 </h:panelGrid>
             </h:form>
             <h:form id="form2">
@@ -41,24 +41,20 @@
                     <f:facet name="header">
                 DIBS Display
                 </f:facet>
-                    <h:commandLink id="goPeople"
-                        action="#{selectorBean.goPeople}"
-                        value="Show Staff"
-                    />
-                    <h:commandLink id="goForums"
-                        action="#{selectorBean.goForums}"
-                        value="Show Forums"
-                    />
-                    <h:commandLink id="goReport"
+                    <h:commandButton id="goReport"
                         action="report"
                         value="Dibs Report"
                     />
-                    <h:commandLink id="goLoad"
-                        action="#{selectorBean.goLoad}"
-                        value="Load"
-                    >
-                    </h:commandLink>                    
                 </h:panelGrid>
+    
+            <rich:fileUpload fileUploadListener="#{selectorBean.listener}"
+                addLabel="Import Data..." title="Import Data"
+                clearAllLabel="Deselect File"
+                id="ctlFileUpload" acceptedTypes="yml, yaml"
+                listHeight="40"
+                ontyperejected="alert('Only YAML files are accepted');" maxFilesQuantity="1">
+                <a4j:ajax event="uploadcomplete" execute="@none" render="selectPerson" />
+            </rich:fileUpload>
             </h:form>
         </h:panelGroup>
     </h:panelGrid>

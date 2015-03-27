@@ -1,5 +1,9 @@
 package com.javaranch.forums.dibs.backing;
 
+import java.io.FileReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.LineNumberReader;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,13 +16,17 @@ import javax.faces.model.SelectItem;
 
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
+import org.richfaces.event.FileUploadEvent;
+import org.richfaces.model.UploadedFile;
 import org.springframework.data.neo4j.conversion.EndResult;
 
 import com.javaranch.forums.dibs.persistence.model.Dibs;
+import com.javaranch.forums.dibs.persistence.model.Forum;
 import com.javaranch.forums.dibs.persistence.model.Person;
 import com.javaranch.forums.dibs.persistence.repository.ForumRepository;
 import com.javaranch.forums.dibs.persistence.repository.PersonRepository;
 import com.javaranch.forums.dibs.persistence.service.DBLoader;
+import com.javaranch.forums.dibs.persistence.service.RescanningLineNumberReader;
 
 
 /**
@@ -167,6 +175,42 @@ public class SelectorBean implements Serializable {
 		return "forumList";
 	}
 
+	//$ SECT Export to YAML (results.jsp)
+
+	/**
+	 * Return people names as elements in a String array.
+	 * 
+	 * @return
+	 */
+	public String[] getPeople() {
+		EndResult<Person> people = this.personRepository.findAll();
+		ArrayList<String> l = new ArrayList<String>(100);
+		for (Person p: people) {
+			l.add(p.getName());
+		}
+		return l.toArray(new String[l.size()]);
+	}
+	
+	/**
+	 * Return people names as elements in a String array.
+	 * 
+	 * @return
+	 */
+	public String[] getForums() {
+		EndResult<Forum> forums = this.forumRepository.findAll();
+		ArrayList<String> l = new ArrayList<String>(100);
+		for (Forum p: forums) {
+			l.add(p.getName());
+		}
+		return l.toArray(new String[l.size()]);
+	}
+
+	public String[] getModerates() {
+		return getForums();
+		// TODO: this is a complex structure!
+	}
+	
+	//$ SECT Summary Report page
 	@ManagedProperty("#{dbLoader}")
 	private DBLoader dbLoader;
 	
@@ -177,11 +221,16 @@ public class SelectorBean implements Serializable {
 		this.dbLoader = dbLoader;
 	}
 
-	public String goLoad() {
-		//JSFUtils.
-//		dbLoader.loadPersons();
-//		dbLoader.loadForumList();
+	public void listener(FileUploadEvent event) throws Exception {
+		UploadedFile item = event.getUploadedFile();
+		InputStream istr = item.getInputStream();
+		InputStreamReader r0 = new InputStreamReader(istr);
+		LineNumberReader lnr = new LineNumberReader(r0);
+		RescanningLineNumberReader rdr =
+				new RescanningLineNumberReader(lnr);
+
+		dbLoader.load(rdr);
+
 		this.personList = null;
-		return null;
-	}
+    }
 }
