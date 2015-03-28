@@ -7,6 +7,7 @@ import java.io.LineNumberReader;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
@@ -27,7 +28,6 @@ import com.javaranch.forums.dibs.persistence.repository.ForumRepository;
 import com.javaranch.forums.dibs.persistence.repository.PersonRepository;
 import com.javaranch.forums.dibs.persistence.service.DBLoader;
 import com.javaranch.forums.dibs.persistence.service.RescanningLineNumberReader;
-
 
 /**
  * Main control panel backing bean.
@@ -97,8 +97,6 @@ public class SelectorBean implements Serializable {
 		this.personRepository = personRepository;
 	}
 
-
-	
 	// --
 	private List<SelectItem> personList;
 
@@ -171,11 +169,23 @@ public class SelectorBean implements Serializable {
 		return "forumList";
 	}
 
-	public String goReport() {
-		return "forumList";
+	@ManagedProperty("#{reportBean}")
+	private ReportBean reportBean;
+
+	/**
+	 * @param reportBean
+	 *            the reportBean to set
+	 */
+	public void setReportBean(ReportBean bean) {
+		this.reportBean = bean;
 	}
 
-	//$ SECT Export to YAML (results.jsp)
+	public String goReport() {
+		this.reportBean.init();
+		return "report";
+	}
+
+	// $ SECT Export to YAML (results.jsp)
 
 	/**
 	 * Return people names as elements in a String array.
@@ -183,39 +193,45 @@ public class SelectorBean implements Serializable {
 	 * @return
 	 */
 	public String[] getPeople() {
-		EndResult<Person> people = this.personRepository.findAll();
+		// https://jira.spring.io/browse/DATAGRAPH-531
+		Transaction trans = graphDatabaseService.beginTx();
+		EndResult<Person> people =
+				this.personRepository.findAll();
 		ArrayList<String> l = new ArrayList<String>(100);
-		for (Person p: people) {
+		for (Person p : people) {
 			l.add(p.getName());
 		}
-		return l.toArray(new String[l.size()]);
-	}
-	
-	/**
-	 * Return people names as elements in a String array.
-	 * 
-	 * @return
-	 */
-	public String[] getForums() {
-		EndResult<Forum> forums = this.forumRepository.findAll();
-		ArrayList<String> l = new ArrayList<String>(100);
-		for (Forum p: forums) {
-			l.add(p.getName());
-		}
+		trans.success();
 		return l.toArray(new String[l.size()]);
 	}
 
-	public String[] getModerates() {
-		return getForums();
-		// TODO: this is a complex structure!
+	/**
+	 * Return Forum objects as elements in a String array.
+	 * 
+	 * @return
+	 */
+	public Forum[] getForums() {
+		Transaction trans = graphDatabaseService.beginTx();
+		EndResult<Forum> forums = this.forumRepository.findAll();
+		ArrayList<Forum> l = new ArrayList<Forum>(100);
+		for (Forum p : forums) {
+			Set<Person> s = p.getModerators();
+			for (Person z : s) {
+				; // Force-fetch.
+			}
+			l.add(p);
+		}
+		trans.success();
+		return l.toArray(new Forum[l.size()]);
 	}
-	
-	//$ SECT Summary Report page
+
+	// $ SECT Summary Report page
 	@ManagedProperty("#{dbLoader}")
 	private DBLoader dbLoader;
-	
+
 	/**
-	 * @param dbLoader the dbLoader to set
+	 * @param dbLoader
+	 *            the dbLoader to set
 	 */
 	public void setDbLoader(DBLoader dbLoader) {
 		this.dbLoader = dbLoader;
@@ -232,5 +248,5 @@ public class SelectorBean implements Serializable {
 		dbLoader.load(rdr);
 
 		this.personList = null;
-    }
+	}
 }

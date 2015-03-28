@@ -7,6 +7,7 @@ import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.javaranch.forums.dibs.persistence.model.Forum;
 import com.javaranch.forums.dibs.persistence.model.Person;
@@ -14,6 +15,7 @@ import com.javaranch.forums.dibs.persistence.model.Person;
 
 
 @Repository
+@Transactional
 public interface ForumRepository extends GraphRepository<Forum> {
 
 	//@Query(value="MATCH (p:Person)-[:DIBS_ON]->(n:Forum) return n")

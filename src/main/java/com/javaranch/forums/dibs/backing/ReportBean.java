@@ -6,7 +6,7 @@ import java.util.Set;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.ViewScoped;
+import javax.faces.bean.SessionScoped;
 import javax.faces.model.ListDataModel;
 
 import com.javaranch.forums.dibs.persistence.model.Forum;
@@ -21,7 +21,7 @@ import com.javaranch.forums.dibs.persistence.service.ForumService;
  * @since Jun 5, 2014
  */
 @ManagedBean
-@ViewScoped
+@SessionScoped
 public class ReportBean {
 
 	// ===
@@ -57,6 +57,15 @@ public class ReportBean {
 		setName("XYZZY");
 	}
 
+	/**
+	 * Setup for new display. Reset models.
+	 */
+	public void init() {
+		this.claimedListModel = null;
+		this.dibsMakerList = null;
+		this.unclaimed = null;
+	}
+	
 	private String name;
 
 	/**
@@ -106,16 +115,29 @@ public class ReportBean {
 	}
 
 	// ---
-	private ListDataModel<ClaimedForum> claimedList;
+	private ListDataModel<ClaimedForum> claimedListModel;
 
 	/**
 	 * @return the claimedList
 	 */
-	public ListDataModel<ClaimedForum> getClaimedList() {
-		if (claimedList == null) {
-			claimedList = buildClaimedForumList();
+	public List<ClaimedForum> getClaimedList() {
+		ListDataModel<ClaimedForum> model =
+				getClaimedListModel();
+		@SuppressWarnings("unchecked")
+		List<ClaimedForum> list =
+				(List<ClaimedForum>) model
+					.getWrappedData();
+		return list;
+	}	
+	
+	/**
+	 * @return the claimedList DataModel
+	 */
+	public ListDataModel<ClaimedForum> getClaimedListModel() {
+		if (claimedListModel == null) {
+			claimedListModel = buildClaimedForumList();
 		}
-		return claimedList;
+		return claimedListModel;
 	}
 
 	private ListDataModel<ClaimedForum> buildClaimedForumList() {

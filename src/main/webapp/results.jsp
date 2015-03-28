@@ -1,10 +1,12 @@
-<%@ page contentType="text/text; charset=UTF-8" isELIgnored="false" %>
+<%@ page contentType="text/yaml; charset=UTF-8" isELIgnored="false" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 ---
 # Dibs Editor database export (YAML)
 people:<c:forEach var="item" items="${selectorBean.people}">
    - ${item}</c:forEach>
 forums:<c:forEach var="item" items="${selectorBean.forums}">
-   - ${item}</c:forEach>
-moderates:<c:forEach var="item" items="${selectorBean.moderates}">
-   - ${item}</c:forEach>
+   - ${item.name}</c:forEach>
+moderates:<c:forEach var="item" items="${reportBean.claimedList}">
+   - ${item.name}:
+     <c:forEach var="person" items="${item.dibsList}">- ${person.name}
+     </c:forEach></c:forEach>
