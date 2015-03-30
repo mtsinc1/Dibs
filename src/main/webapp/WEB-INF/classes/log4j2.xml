@@ -7,10 +7,19 @@
         </Console>
     </Appenders>
     <Loggers>
-        <Logger name="org.neo4j" additivity="false">
+        <Logger name="javax.faces" additivity="false" level="trace">
             <appender-ref ref="Console" />
         </Logger>
-        <Root level="info">
+        <Logger name="com.sun" additivity="false" level="trace">
+            <appender-ref ref="Console" />
+        </Logger>
+        <Logger name="org.springframework" additivity="false" level="info">
+            <appender-ref ref="Console" />
+        </Logger>        
+        <Logger name="org.neo4j" additivity="false" level="info">
+            <appender-ref ref="Console" />
+        </Logger>
+        <Root level="trace">
             <AppenderRef ref="Console" />
         </Root>
     </Loggers>

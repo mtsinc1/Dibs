@@ -1,19 +1,21 @@
 <?xml version="1.0"?>
 <!--Dibs Selector view... Selects user to edit or report view -->
-<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+<html xmlns="http://www.w3.org/1999/xhtml"
     xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:h="http://java.sun.com/jsf/html"
     xmlns:f="http://java.sun.com/jsf/core"
     xmlns:rich="http://richfaces.org/rich"
     xmlns:a4j="http://richfaces.org/a4j"
-    template="/WEB-INF/layout/layout.xhtml"
 >
-    <ui:define name="title">Dibs Administration</ui:define>
+<ui:composition
+    template="/WEB-INF/layout/layout.xhtml">
+    <ui:define name="title">JavaRanch DIBS Summary Report</ui:define>
     <ui:define name="content">
     <h:panelGrid id="pnlDownload">
         <h:form id="frmDownload">
             <f:facet name="header">Download</f:facet>
             <h:outputLink id="ctlDownload" value="results.jsp" >Download as YAML</h:outputLink>
+            <h:commandLink id="ctlBack" action="main">Back to Main Page</h:commandLink>
         </h:form>
     </h:panelGrid>
     <!--  -->
@@ -77,3 +79,5 @@
         </div>
     </rich:collapsiblePanel>
 </ui:define>
+</ui:composition>
+</html>
