@@ -7,10 +7,10 @@
     xmlns:rich="http://richfaces.org/rich"
     xmlns:a4j="http://richfaces.org/a4j"
 >
-<h:head>
-    <title>Dibs Selection and Display</title>
-</h:head>
-<h:body>
+<ui:composition
+    template="/WEB-INF/layout/layout.xhtml">
+    <ui:define name="title">JavaRanch DIBS</ui:define>
+<ui:define name="content">    
     <h:panelGrid columns="1">
         <h:messages/>
         <h:panelGroup>
@@ -58,5 +58,6 @@
             </h:form>
         </h:panelGroup>
     </h:panelGrid>
-</h:body>
+    </ui:define>
+</ui:composition>
 </html>

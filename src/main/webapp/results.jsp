@@ -1,6 +1,6 @@
-<%@ page contentType="text/yaml; charset=UTF-8" isELIgnored="false" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
----
+<%@ page contentType="text/yaml; charset=UTF-8" isELIgnored="false"
+ %><%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" 
+ %>---
 # Dibs Editor database export (YAML)
 people:<c:forEach var="item" items="${selectorBean.people}">
    - ${item}</c:forEach>

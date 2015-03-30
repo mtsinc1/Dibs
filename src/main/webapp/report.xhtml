@@ -1,16 +1,22 @@
 <?xml version="1.0"?>
 <!--Dibs Selector view... Selects user to edit or report view -->
-<html xmlns:ui="http://java.sun.com/jsf/facelets"
-    xmlns:f="http://java.sun.com/jsf/core"
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
     xmlns:rich="http://richfaces.org/rich"
     xmlns:a4j="http://richfaces.org/a4j"
+    template="/WEB-INF/layout/layout.xhtml"
 >
-<h:head>
-    <title>Dibs current status</title>
-</h:head>
-<h:body>
-    <h1>Forum Dibs Status</h1>
+    <ui:define name="title">Dibs Administration</ui:define>
+    <ui:define name="content">
+    <h:panelGrid id="pnlDownload">
+        <h:form id="frmDownload">
+            <f:facet name="header">Download</f:facet>
+            <h:outputLink id="ctlDownload" value="results.jsp" >Download as YAML</h:outputLink>
+        </h:form>
+    </h:panelGrid>
+    <!--  -->
     <rich:collapsiblePanel switchType="client" id="pnlCurrent"
         header="Unclaimed Forums"
     >
@@ -32,6 +38,7 @@
         <div style="height: 300px; overflow-y: scroll">
             <h:dataTable id="tblClaimed" var="row"
                 value="#{reportBean.claimedListModel}"
+                rowClasses="ledger1,ledger2"
             >
                 <h:column>
                     <f:facet name="head">Forum</f:facet>
@@ -69,5 +76,4 @@
             </h:dataTable>
         </div>
     </rich:collapsiblePanel>
-</h:body>
-</html>
+</ui:define>
