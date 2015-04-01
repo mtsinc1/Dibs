@@ -25,6 +25,9 @@
         <div style="height: 300px; overflow-y: scroll">
             <h:dataTable id="tblUnclaimed" var="row"
                 value="#{reportBean.unclaimed}"
+                styleClass="reportTable"
+                rowClasses="ledger1,ledger2"
+                columnClasses="reportCol1,reportCol2"
             >
                 <h:column>
                     <f:facet name="head">Forum</f:facet>
@@ -40,7 +43,9 @@
         <div style="height: 300px; overflow-y: scroll">
             <h:dataTable id="tblClaimed" var="row"
                 value="#{reportBean.claimedListModel}"
+                styleClass="reportTable"
                 rowClasses="ledger1,ledger2"
+                columnClasses="reportCol1,reportCol2"
             >
                 <h:column>
                     <f:facet name="head">Forum</f:facet>
@@ -62,6 +67,9 @@
         <div style="height: 300px; overflow-y: scroll">
             <h:dataTable id="tblModerators" var="row"
                 value="#{reportBean.dibsMakerList}"
+                styleClass="reportTable"
+                rowClasses="ledger1,ledger2"
+                columnClasses="reportCol1,reportCol2"
             >
                 <h:column>
                     <f:facet name="head">Moderator</f:facet>

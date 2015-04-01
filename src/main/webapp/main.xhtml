@@ -25,6 +25,7 @@
                     <h:selectOneMenu id="selectPerson"
                         value="#{selectorBean.selectPerson}"
                         onchange="document.form1.submit()"
+                        styleClass="longBtn"
                     >
                         <f:selectItems
                             value="#{selectorBean.personList}"
@@ -33,8 +34,12 @@
                             listener="#{selectorBean.doDibs}"
                         />
                     </h:selectOneMenu>
-                    <h:commandButton id="selStaff" action="#{selectorBean.doDibs}" value="Edit Dibs"/>
-                </h:panelGrid>
+                        <h:commandButton id="selStaff"
+                            action="#{selectorBean.doDibs}"
+                            styleClass="longBtn"
+                            value="Edit Dibs"
+                        />
+                    </h:panelGrid>
             </h:form>
             <h:form id="form2">
                 <h:panelGrid columns="1">
@@ -44,18 +49,31 @@
                     <h:commandButton id="goReport"
                         action="#{selectorBean.goReport}"
                         value="Dibs Report"
+                        styleClass="longBtn"
                     />
                 </h:panelGrid>
-    
-            <rich:fileUpload fileUploadListener="#{selectorBean.listener}"
-                addLabel="Import Data..." title="Import Data"
-                clearAllLabel="Deselect File"
-                id="ctlFileUpload" acceptedTypes="yml, yaml"
-                listHeight="40"
-                ontyperejected="alert('Only YAML files are accepted');" maxFilesQuantity="1">
-                <a4j:ajax event="uploadcomplete" execute="@none" render="selectPerson" />
-            </rich:fileUpload>
-            </h:form>
+                    <h:panelGrid columns="1" id="pnlImport">
+                        <f:facet name="header">
+                DIBS Import
+                </f:facet>
+                        <rich:fileUpload
+                            fileUploadListener="#{selectorBean.listener}"
+                            addLabel="Select YAML file to upload..."
+                            title="Import Data"
+                            clearAllLabel="Deselect File"
+                            id="ctlFileUpload"
+                            acceptedTypes="yml, yaml"
+                            listHeight="40"
+                            ontyperejected="alert('Only YAML files are accepted');"
+                            maxFilesQuantity="1"
+                        >
+                            <a4j:ajax event="uploadcomplete"
+                                execute="@none"
+                                render="selectPerson"
+                            />
+                        </rich:fileUpload>
+                    </h:panelGrid>
+                </h:form>
         </h:panelGroup>
     </h:panelGrid>
     </ui:define>

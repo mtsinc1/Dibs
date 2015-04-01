@@ -1,7 +1,23 @@
+.longBtn {
+    width: 220px;	
+}
+
+.reportTable {
+	width: 100%;
+}
 .ledger1 {
-	background-color: lightGreen;
+	background-color: #d6e7ff;
 }
 
 .ledger2 {
-    background-color: green;
+    background-color: #6894d0;
+}
+
+.reportCol1 {
+	padding-left: 5px;
+	width: 30em;
+}
+
+.reportCol2 {
+    margin-left: 4px;
 }
