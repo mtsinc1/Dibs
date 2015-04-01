@@ -8,6 +8,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.javaranch.forums.dibs.persistence.model.Person;
 
+/**
+ * Repository object for Person nodes
+ * @author timh
+ * @since Apr 1, 2015
+ * @TestedBy PersonRepositoryTest
+ */
+
 @Repository
 @Transactional
 public interface PersonRepository extends GraphRepository<Person> {
@@ -20,5 +27,7 @@ public interface PersonRepository extends GraphRepository<Person> {
 	 */
 	@Query(value="MATCH (n:Person {name: {name}}) return COUNT(*)")
 	public int hasName(@Param("name") String name);
-	
+
+	@Query(value="MATCH (n:Person {name: {name}}) return n")
+	public Person findByName(@Param("name") String personName);	
 }

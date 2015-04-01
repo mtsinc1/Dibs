@@ -5,6 +5,7 @@ import java.util.Set;
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.neo4j.annotation.Fetch;
 import org.springframework.data.neo4j.annotation.GraphId;
+import org.springframework.data.neo4j.annotation.Indexed;
 import org.springframework.data.neo4j.annotation.NodeEntity;
 import org.springframework.data.neo4j.annotation.RelatedTo;
 import org.springframework.data.neo4j.annotation.RelatedToVia;
@@ -25,6 +26,7 @@ public class Person {
 	@GraphId
 	public Long nodeId;
 
+	@Indexed(unique=true)
 	String name = "Person Name Not Set.";
 
 	public Person(String name) {

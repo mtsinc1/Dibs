@@ -12,7 +12,12 @@ import org.springframework.transaction.annotation.Transactional;
 import com.javaranch.forums.dibs.persistence.model.Forum;
 import com.javaranch.forums.dibs.persistence.model.Person;
 
-
+/**
+ * Repository interface for Forum nodes.
+ * @author timh
+ * @since Apr 1, 2015
+ * @TestedBy ForumRepositoryTest
+ */
 
 @Repository
 @Transactional
@@ -36,4 +41,7 @@ public interface ForumRepository extends GraphRepository<Forum> {
 	 */
 	@Query(value="MATCH (n:Forum {name: {name}}) return COUNT(*)")
 	public int hasName(@Param("name") String name);
+
+	@Query(value="MATCH (n:Forum {name: {name}}) return n")
+	public Forum findByName(@Param("name") String forumName);
 }
