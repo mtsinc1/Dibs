@@ -56,7 +56,7 @@ public class Forum implements java.io.Serializable {
 	
 	//--
 	@RelatedToVia
-	@Fetch Set<Dibs> dibsBidders = new HashSet<Dibs>(5);
+	Set<Dibs> dibsBidders = new HashSet<Dibs>(5);
 	
 	/**
 	 * @return the dibsBidders

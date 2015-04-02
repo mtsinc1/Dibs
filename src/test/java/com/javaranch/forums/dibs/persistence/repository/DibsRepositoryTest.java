@@ -52,8 +52,10 @@ public class DibsRepositoryTest {
 //		template.save(node1);
 //		node2.getDibsList().add(f);
 //		template.save(node2);
+		tx.success();
 		
 		
+		tx = template.getGraphDatabase().beginTx();
 		Dibs d1 = new Dibs(node1, f, 1);
 		d1.person = node1;
 		d1.forum = f;
@@ -63,7 +65,7 @@ public class DibsRepositoryTest {
 		
 		tx.success();
 		
-		Result<Dibs> list = dibsRepository.findAll();
+		List<Dibs> list = dibsRepository.findAllDibs(f);
 		for (Dibs zz: list) {
 			System.out
 				.println(zz);

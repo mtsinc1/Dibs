@@ -18,6 +18,6 @@ import com.javaranch.forums.dibs.persistence.model.Forum;
  */
 public interface DibsRepository extends GraphRepository<Dibs> {
 
-	@Query(value="MATCH (n:Dibs {forum: {forum}}) return n ORDER BY n.priority ")
+	@Query(value="MATCH (n:Dibs {forum.name: {forum.name}}) return n ORDER BY n.priority ")
 	List<Dibs> findAllDibs(@Param("forum") Forum f);
 }
