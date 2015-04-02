@@ -1,6 +1,5 @@
 package com.javaranch.forums.dibs.backing;
 
-import java.io.FileReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.LineNumberReader;
@@ -19,7 +18,7 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
 import org.richfaces.event.FileUploadEvent;
 import org.richfaces.model.UploadedFile;
-import org.springframework.data.neo4j.conversion.EndResult;
+import org.springframework.data.neo4j.conversion.Result;
 
 import com.javaranch.forums.dibs.persistence.model.Dibs;
 import com.javaranch.forums.dibs.persistence.model.Forum;
@@ -38,7 +37,7 @@ import com.javaranch.forums.dibs.persistence.service.RescanningLineNumberReader;
 
 @ManagedBean
 @SessionScoped
-public class SelectorBean implements Serializable {
+public class AdminMainBean implements Serializable {
 
 	/**
 	 * 
@@ -121,7 +120,7 @@ public class SelectorBean implements Serializable {
 	/**
 	 * Default Constructor.
 	 */
-	public SelectorBean() {
+	public AdminMainBean() {
 		// this.personList = buildPersonList();
 
 	}
@@ -142,7 +141,7 @@ public class SelectorBean implements Serializable {
 		List<SelectItem> plist = new ArrayList<SelectItem>();
 
 		Transaction trans = graphDatabaseService.beginTx();
-		EndResult<Person> persons = personRepository.findAll();
+		Result<Person> persons = personRepository.findAll();
 		for (Person person : persons) {
 			plist.add(new SelectItem(person.nodeId, person
 				.getName()));
@@ -158,7 +157,7 @@ public class SelectorBean implements Serializable {
 	public String doDibs() {
 		this.dibsSelectorBean.beginEdit(this.getSelectPerson(),
 			Dibs.CONNECT_DIBS);
-		return "dibselect";
+		return "/dibselect";
 	}
 
 	public String goPeople() {
@@ -195,7 +194,7 @@ public class SelectorBean implements Serializable {
 	public String[] getPeople() {
 		// https://jira.spring.io/browse/DATAGRAPH-531
 		Transaction trans = graphDatabaseService.beginTx();
-		EndResult<Person> people =
+		Result<Person> people =
 				this.personRepository.findAll();
 		ArrayList<String> l = new ArrayList<String>(100);
 		for (Person p : people) {
@@ -212,7 +211,7 @@ public class SelectorBean implements Serializable {
 	 */
 	public Forum[] getForums() {
 		Transaction trans = graphDatabaseService.beginTx();
-		EndResult<Forum> forums = this.forumRepository.findAll();
+		Result<Forum> forums = this.forumRepository.findAll();
 		ArrayList<Forum> l = new ArrayList<Forum>(100);
 		for (Forum p : forums) {
 			Set<Person> s = p.getModerators();

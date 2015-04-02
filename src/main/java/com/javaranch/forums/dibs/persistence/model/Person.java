@@ -2,16 +2,13 @@ package com.javaranch.forums.dibs.persistence.model;
 
 import java.util.Set;
 
-import org.neo4j.graphdb.Direction;
-import org.springframework.data.neo4j.annotation.Fetch;
 import org.springframework.data.neo4j.annotation.GraphId;
 import org.springframework.data.neo4j.annotation.Indexed;
 import org.springframework.data.neo4j.annotation.NodeEntity;
-import org.springframework.data.neo4j.annotation.RelatedTo;
 import org.springframework.data.neo4j.annotation.RelatedToVia;
 
 @NodeEntity
-public class Person {
+public class Person implements java.io.Serializable {
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -36,12 +33,11 @@ public class Person {
 	public Person() {
 	}
 
-	@RelatedTo(direction = Direction.BOTH, type = Dibs.CONNECT_MODERATES, elementClass = Forum.class)
-	Set<Forum> moderatesList;
+//	@RelatedTo(direction = Direction.BOTH, type = Dibs.CONNECT_MODERATES, elementClass = Forum.class)
+//	Set<Forum> moderatesList;
 
-	@RelatedTo(direction = Direction.BOTH, type = "DIBS_ON", elementClass = Forum.class)
-	@Fetch
-	Set<Forum> dibsList;
+	@RelatedToVia
+	Set<Dibs> dibsList;// = new HashSet<Dibs>();
 
 	/**
 	 * @return the name
@@ -58,35 +54,35 @@ public class Person {
 		this.name = name;
 	}
 
-	/**
-	 * @return the moderatesList
-	 */
-	public Set<Forum> getModeratesList() {
-		return moderatesList;
-	}
-
-	/**
-	 * @param moderatesList
-	 *            the moderatesList to set
-	 */
-	public void setModeratesList(Set<Forum> moderatesList) {
-		this.moderatesList = moderatesList;
-	}
+//	/**
+//	 * @return the moderatesList
+//	 */
+//	public Set<Forum> getModeratesList() {
+//		return moderatesList;
+//	}
+//
+//	/**
+//	 * @param moderatesList
+//	 *            the moderatesList to set
+//	 */
+//	public void setModeratesList(Set<Forum> moderatesList) {
+//		this.moderatesList = moderatesList;
+//	}
 
 	/**
 	 * @return the dibsList
 	 */
-	public Set<Forum> getDibsList() {
+	public Iterable<Dibs> getDibsList() {
 		return dibsList;
 	}
 
-	/**
-	 * @param dibsList
-	 *            the dibsList to set
-	 */
-	public void setDibsList(Set<Forum> dibsList) {
-		this.dibsList = dibsList;
-	}
+//	/**
+//	 * @param dibsList
+//	 *            the dibsList to set
+//	 */
+//	public void setDibsList(Set<Dibs> dibsList) {
+//		this.dibsList = dibsList;
+//	}
 
 	/*
 	 * (non-Javadoc)

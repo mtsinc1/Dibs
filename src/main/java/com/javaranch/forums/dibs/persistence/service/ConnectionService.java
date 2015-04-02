@@ -1,5 +1,6 @@
 package com.javaranch.forums.dibs.persistence.service;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -8,8 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.javaranch.forums.dibs.persistence.model.Person;
 import com.javaranch.forums.dibs.persistence.model.Forum;
+import com.javaranch.forums.dibs.persistence.model.Person;
 import com.javaranch.forums.dibs.persistence.repository.ForumRepository;
 import com.javaranch.forums.dibs.persistence.repository.PersonRepository;
 
@@ -60,7 +61,7 @@ public class ConnectionService {
 			Forum f = this.forumRepository.findOne(targetIds[i]);
 			forums.add(f);
 		}
-		p.setDibsList(forums);
+		//=<<< p.setDibsList(forums);
 		this.personRepository.save(p);
 	}
 
@@ -73,7 +74,7 @@ public class ConnectionService {
 			Forum f = this.forumRepository.findOne(targetIds.get(i));
 			forums.add(f);
 		}
-		p.setDibsList(forums);
+		//=<<< p.setDibsList(forums);
 		this.personRepository.save(p);
 	}
 }

@@ -153,12 +153,12 @@ public class ReportBean {
 		ArrayList<ClaimedForum> olist =
 				new ArrayList<ClaimedForum>();
 		for (Forum forum : flist) {
-			ClaimedForum cf = new ClaimedForum(forum.name);
-			Set<Person> dl = forum.getDibsBidders();
-			for (Person person : dl) {
-				cf.dibsList.add(person);
-			}
-			olist.add(cf);
+//			ClaimedForum cf = new ClaimedForum(forum.name);
+//			Set<Person> dl = forum.getDibsBidders();
+//			for (Person person : dl) {
+//				cf.dibsList.add(person);
+//			}
+//			olist.add(cf);
 		}
 		return olist;
 	}
@@ -248,19 +248,19 @@ public class ReportBean {
 			DibsMaker dm = new DibsMaker(person.getName(), "");
 			olist.add(dm);
 
-			Set<Forum> dibOn = person.getDibsList();
-			String d = dm.getForumNames();
-			if (dibOn.isEmpty()) {
-				d = "No Forums";
-			} else {
-				for (Forum forum : dibOn) {
-					if (d.length() != 0) {
-						d += ", ";
-					}
-					d += forum.getName();
-				}
-				dm.setForumNames(d);
-			}
+//			Set	<Forum> dibOn = person.getDibsList();
+//			String d = dm.getForumNames();
+//			if (dibOn.isEmpty()) {
+//				d = "No Forums";
+//			} else {
+//				for (Forum forum : dibOn) {
+//					if (d.length() != 0) {
+//						d += ", ";
+//					}
+//					d += forum.getName();
+//				}
+//				dm.setForumNames(d);
+//			}
 		}
 		return olist;
 	}

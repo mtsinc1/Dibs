@@ -19,6 +19,16 @@ import com.javaranch.forums.dibs.persistence.model.Person;
 import com.javaranch.forums.dibs.persistence.repository.ForumRepository;
 import com.javaranch.forums.dibs.persistence.repository.PersonRepository;
 
+/**
+ * Test for the DBLoader.
+ * 
+ * @author timh
+ * @since Apr 2, 2015
+ * 
+ * TODO: add test of forum removal of moderator
+ * 
+ * TODO: add test for deletion of person in forum
+ */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "/testApplicationContext.xml" })
 public class DBLoaderTest {

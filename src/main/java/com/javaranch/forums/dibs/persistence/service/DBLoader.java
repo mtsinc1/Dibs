@@ -19,7 +19,7 @@ import com.javaranch.forums.dibs.persistence.repository.PersonRepository;
  * 
  * @author timh
  * @since Jun 4, 2014
- * @TestedBy TestDBLoader
+ * @TestedBy DBLoaderTest
  */
 @Repository(value = "dbLoader")
 public class DBLoader {
@@ -49,6 +49,13 @@ public class DBLoader {
 	 * <p/>
 	 * Moderations of undeclared persons/forums will
 	 * automatically add them with a warning.
+	 * 
+	 * Appending a "-" to the person or forum name deletes
+	 * that node (if present).
+	 * 
+	 * TODO: under moderates, the construct "- forum: -" should
+	 * remove all moderators from that forum.
+	 * 
 	 */
 	/* Logger */
 
@@ -144,8 +151,12 @@ public class DBLoader {
 
 	// ===
 
+	/**
+	 * Delete a person
+	 * 
+	 * @param name
+	 */
 	private void personDelete(String name) {
-		// TODO TEST ME
 		name = name.substring(0, name.length() - 1).trim();
 		log.info("Deleting person " + name);
 		Person p = personRepository.findByName(name);
@@ -196,8 +207,12 @@ public class DBLoader {
 
 	// ===
 
+	/**
+	 * Delete a forum.
+	 * 
+	 * @param name
+	 */
 	private void forumDelete(String name) {
-		// TODO: TEST ME
 		name = name.substring(0, name.length() - 1).trim();
 		log.info("Deleting forum " + name);
 		Forum f = forumRepository.findByName(name);
@@ -209,9 +224,6 @@ public class DBLoader {
 
 	private void loadModerates(RescanningLineNumberReader rdr)
 			throws IOException {
-		int forumNew = 0;
-		int forumExists = 0;
-		// TODO
 		String line;
 		while ((line = rdr.readLine()) != null) {
 			if (CrudeYAMLParser.isItemLine(line)) {
@@ -227,9 +239,7 @@ public class DBLoader {
 					if (k == 0) {
 						node = new Forum(forumName);
 						forumRepository.save(node);
-						forumNew++;
 					} else {
-						forumExists++;
 						node =
 								forumRepository
 									.findByName(forumName);
@@ -237,19 +247,8 @@ public class DBLoader {
 
 					loadModerateUsers(forumName, rdr);
 				}
-				// int k = forumRepository.hasName(name);
-				// if (k == 0) {
-				// Forum person = new Forum(name);
-				// forumRepository.save(person);
-				// forumNew++;
-				// } else {
-				// forumExists++;
-				// }
 			}
 		}
-		// log.info(forumExists + " forums already existed.");
-		// log.info(forumNew + " forums added.");
-		// log.info((forumNew + forumExists) + " forums total.");
 		rdr.rescan();
 	}
 
@@ -313,8 +312,6 @@ public class DBLoader {
 	 * 
 	 * @param forum
 	 * @param name
-	 * 
-	 *            TODO: Test ME!
 	 */
 	private void forumRemove(Forum forum, String name) {
 		name = name.substring(0, name.length() - 1).trim();

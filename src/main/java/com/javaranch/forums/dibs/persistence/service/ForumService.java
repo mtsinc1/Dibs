@@ -9,12 +9,14 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.neo4j.conversion.EndResult;
+import org.springframework.data.neo4j.conversion.Result;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.javaranch.forums.dibs.persistence.model.Dibs;
 import com.javaranch.forums.dibs.persistence.model.Forum;
 import com.javaranch.forums.dibs.persistence.model.Person;
+import com.javaranch.forums.dibs.persistence.repository.DibsRepository;
 import com.javaranch.forums.dibs.persistence.repository.ForumRepository;
 import com.javaranch.forums.dibs.persistence.repository.PersonRepository;
 
@@ -60,6 +62,18 @@ public class ForumService {
 		this.forumRepository = forumRepository;
 	}
 
+	// --
+	@Autowired
+	private DibsRepository dibsRepository;
+
+	/**
+	 * @param repository
+	 *            the Repository to set
+	 */
+	public void setDibsRepository(DibsRepository repository) {
+		this.dibsRepository = repository;
+	}
+
 	// ===
 	
 	/**
@@ -72,7 +86,7 @@ public class ForumService {
 	
 	// ===
 	public List<Forum> findAllForums() {
-		EndResult<Forum> forums = forumRepository.findAll();
+		Result<Forum> forums = forumRepository.findAll();
 		ArrayList<Forum> list = new ArrayList<Forum>();
 		for (Forum forum : forums) {
 			list.add(forum);
@@ -87,27 +101,14 @@ public class ForumService {
 					+ " not found.");
 		}
 
-		Set<Forum> dibsList = new HashSet<Forum>(idList.length);
+		//Set<Forum> dibsList = new HashSet<Forum>(idList.length);
 
+		int priority = 1;
 		for (long forumId : idList) {
 			Forum f = this.forumRepository.findOne(forumId);
-			if (f != null) {
-				dibsList.add(f);
-			} else {
-				// We already know~
-			}
-		}
-		person.setDibsList(dibsList);
-		person = this.personRepository.save(person);
-
-		for (long forumId : idList) {
-			Forum f = this.forumRepository.findOne(forumId);
-			if (f != null) {
-				f.getDibsBidders().add(person);
-				f = this.forumRepository.save(f);
-			} else {
-				log.error("Forum ID " + forumId + " Not found");
-			}
+			Dibs d = new Dibs(person, f, priority);
+			priority++;
+			dibsRepository.save(d);
 		}
 	}
 
@@ -137,7 +138,7 @@ public class ForumService {
 			}
 		}
 
-		person.setDibsList(dibsList);
+		//=<<person.setDibsList(dibsList);
 		this.personRepository.save(person);
 	}
 
@@ -161,7 +162,7 @@ public class ForumService {
 			f = this.forumRepository.save(f);
 		}
 
-		person.getDibsList().clear();
+//		person.getDibsList().clear();
 		this.personRepository.save(person);
 	}
 
@@ -182,7 +183,7 @@ public class ForumService {
 	public List<Person> findAllPersons() {
 		ArrayList<Person> lst = new ArrayList<Person>();
 //		Transaction tx = this.graphDatabaseService.beginTx();
-		EndResult<Person> l = this.personRepository.findAll();
+		Result<Person> l = this.personRepository.findAll();
 		for (Person person : l) {
 			lst.add(person);
 		}

@@ -23,19 +23,19 @@
                         value="Staff member"
                     />
                     <h:selectOneMenu id="selectPerson"
-                        value="#{selectorBean.selectPerson}"
+                        value="#{adminMainBean.selectPerson}"
                         onchange="document.form1.submit()"
                         styleClass="longBtn"
                     >
                         <f:selectItems
-                            value="#{selectorBean.personList}"
+                            value="#{adminMainBean.personList}"
                         />
                         <a4j:ajax execute="@this"
-                            listener="#{selectorBean.doDibs}"
+                            listener="#{adminMainBean.doDibs}"
                         />
                     </h:selectOneMenu>
                         <h:commandButton id="selStaff"
-                            action="#{selectorBean.doDibs}"
+                            action="#{adminMainBean.doDibs}"
                             styleClass="longBtn"
                             value="Edit Dibs"
                         />
@@ -47,7 +47,7 @@
                 DIBS Report and Export
                 </f:facet>
                     <h:commandButton id="goReport"
-                        action="#{selectorBean.goReport}"
+                        action="#{adminMainBean.goReport}"
                         value="Dibs Report"
                         styleClass="longBtn"
                     />
@@ -57,7 +57,7 @@
                 DIBS Import
                 </f:facet>
                         <rich:fileUpload
-                            fileUploadListener="#{selectorBean.listener}"
+                            fileUploadListener="#{adminMainBean.listener}"
                             addLabel="Select YAML file to upload..."
                             title="Import Data"
                             clearAllLabel="Deselect File"

@@ -177,6 +177,14 @@
             <version>${neo4j.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.neo4j</groupId>
+            <artifactId>neo4j-io</artifactId>
+   <type>test-jar</type>
+   <scope>test</scope>
+            <version>${neo4j.version}</version>
+        </dependency>
+
+        <dependency>
             <groupId>javax.transaction</groupId>
             <artifactId>jta</artifactId>
             <version>1.1</version>
@@ -310,9 +318,9 @@
 
     <properties>
         <org.richfaces.bom.version>4.2.2.Final</org.richfaces.bom.version>
-        <org.springframework.version>3.2.5.RELEASE</org.springframework.version>
-        <spring.neo4j.version>3.0.0.RELEASE</spring.neo4j.version>
-        <neo4j.version>2.0.1</neo4j.version>
+        <org.springframework.version>4.0.6.RELEASE</org.springframework.version>
+        <spring.neo4j.version>3.3.0.RELEASE</spring.neo4j.version>
+        <neo4j.version>2.2.0</neo4j.version>
         <slf4j-version>1.7.6</slf4j-version>
         <version.nosqlunit>0.8.1</version.nosqlunit>
     </properties>

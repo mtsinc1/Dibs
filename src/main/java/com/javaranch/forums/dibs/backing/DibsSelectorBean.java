@@ -11,6 +11,9 @@ import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.SessionScoped;
 import javax.faces.model.SelectItem;
 
+import org.apache.log4j.Logger;
+
+import com.javaranch.forums.dibs.persistence.model.Dibs;
 import com.javaranch.forums.dibs.persistence.model.Forum;
 import com.javaranch.forums.dibs.persistence.model.Person;
 import com.javaranch.forums.dibs.persistence.repository.PersonRepository;
@@ -29,6 +32,11 @@ import com.javaranch.forums.dibs.persistence.service.ForumService;
 @SessionScoped
 public class DibsSelectorBean implements Serializable {
 
+	/* Logger */
+	
+	final private static Logger log =
+			Logger.getLogger(DibsSelectorBean.class);
+	
 	/**
 	 * 
 	 */
@@ -176,7 +184,7 @@ public class DibsSelectorBean implements Serializable {
 			idList(this.choices));
 
 		JSFUtils.addInfoMessage("List has been updated.");
-		System.out.println("+++++ LIST CHANGED  +++++");
+		log.info("+++++ LIST CHANGED  +++++");
 	}
 
 	// ====
@@ -195,15 +203,15 @@ public class DibsSelectorBean implements Serializable {
 
 		Person p = this.personRepository.findOne(personId);
 		this.person = p;
-		Set<Forum> forums = p.getDibsList();
-		final int fsize = forums.size();
-		List<Long> fpicked = new ArrayList<Long>(fsize);
-		for (Forum f : forums) {
-			System.out.println(f.toString());
-			fpicked.add(f.nodeId);
-		}
-		int ssz = fpicked.size();
-		this.setChoices(fpicked.toArray(new Long[ssz]));
+//		Iterable<Dibs> forums = p.getDibsList();
+//		final int fsize = forums.size();
+//		List<Long> fpicked = new ArrayList<Long>(fsize);
+////		for (Forum f : forums) {
+////			log.info(f.toString());
+////			fpicked.add(f.nodeId);
+////		}
+//		int ssz = fpicked.size();
+//		this.setChoices(fpicked.toArray(new Long[ssz]));
 	}
 
 	/**

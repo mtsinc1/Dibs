@@ -8,9 +8,15 @@ import org.springframework.data.neo4j.annotation.GraphId;
 import org.springframework.data.neo4j.annotation.Indexed;
 import org.springframework.data.neo4j.annotation.NodeEntity;
 import org.springframework.data.neo4j.annotation.RelatedTo;
+import org.springframework.data.neo4j.annotation.RelatedToVia;
 
 @NodeEntity
-public class Forum {
+public class Forum implements java.io.Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
@@ -49,22 +55,22 @@ public class Forum {
 	}
 	
 	//--
-	@RelatedTo(type="DIBS_ON")
-	@Fetch Set<Person> dibsBidders = new HashSet<Person>(5);
+	@RelatedToVia(type="DIBS_ON")
+	@Fetch Set<Dibs> dibsBidders;// = new HashSet<Person>(5);
 	
 	/**
 	 * @return the dibsBidders
 	 */
-	public Set<Person> getDibsBidders() {
+	public Set<Dibs> getDibsBidders() {
 		return dibsBidders;
 	}
 
-	/**
-	 * @param dibsBidders the dibsBidders to set
-	 */
-	public void setDibsBidders(Set<Person> dibsBidders) {
-		this.dibsBidders = dibsBidders;
-	}
+//	/**
+//	 * @param dibsBidders the dibsBidders to set
+//	 */
+//	public void setDibsBidders(Set<Person> dibsBidders) {
+//		this.dibsBidders = dibsBidders;
+//	}
 
 	//--
 	@RelatedTo(type="MODERATES")
