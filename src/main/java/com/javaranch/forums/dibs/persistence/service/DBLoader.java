@@ -4,6 +4,8 @@ import java.io.IOException;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
@@ -17,12 +19,15 @@ import com.javaranch.forums.dibs.persistence.repository.PersonRepository;
  * 
  * @author timh
  * @since Jun 4, 2014
- * @TestWith TestDBLoader
+ * @TestedBy TestDBLoader
  */
 @Repository(value = "dbLoader")
 public class DBLoader {
-/**
-	 * Data format: <pre><code>
+	/**
+	 * Data format:
+	 * 
+	 * <pre>
+	 * <code>
 	 * ---
 	 * persons:
 	 *  - John Doe
@@ -39,28 +44,42 @@ public class DBLoader {
 	 *      - Harriet Jones
 	 *  forum:
 	 *     name: etc.
-	 *  </code></pre>
+	 *  </code>
+	 * </pre>
 	 * <p/>
 	 * Moderations of undeclared persons/forums will
 	 * automatically add them with a warning.
 	 */
 	/* Logger */
 
-	final private static Logger log = 
-		LogManager.getLogger(DBLoader.class);
+	final private static Logger log = LogManager
+		.getLogger(DBLoader.class);
 	// --
 	@Autowired
 	private transient PersonRepository personRepository;
 
-	
+	// ---
+	@Autowired
+	private transient GraphDatabaseService graphDatabaseService;
+
+	/**
+	 * @param forumRepository
+	 *            the forumRepository to set
+	 */
+	public void setGraphDatabaseService(
+			GraphDatabaseService service) {
+		this.graphDatabaseService = service;
+	}
+
+	// ===
 	/**
 	 * Default Constructor
 	 */
-	
+
 	public DBLoader() {
-		
+
 	}
-	
+
 	/**
 	 * Load YAML-format data
 	 * 
@@ -98,12 +117,15 @@ public class DBLoader {
 		int personNew = 0;
 
 		String line;
-		while (((line = rdr.readLine()) != null) &&
-			 CrudeYAMLParser.isItemLine(line)) {
-				// line value is person name ("- name"). Add if
-				// not present.
-				String[] v = CrudeYAMLParser.extractItem(line);
-				String name = v[0];
+		while (((line = rdr.readLine()) != null)
+				&& CrudeYAMLParser.isItemLine(line)) {
+			// line value is person name ("- name"). Add if
+			// not present.
+			String[] v = CrudeYAMLParser.extractItem(line);
+			String name = v[0];
+			if (name.endsWith("-")) {
+				personDelete(name);
+			} else {
 				int k = personRepository.hasName(name);
 				if (k == 0) {
 					Person person = new Person(name);
@@ -112,6 +134,7 @@ public class DBLoader {
 				} else {
 					personExists++;
 				}
+			}
 		}
 		log.info(personExists + " persons already existed.");
 		log.info(personNew + " persons added.");
@@ -120,6 +143,16 @@ public class DBLoader {
 	}
 
 	// ===
+
+	private void personDelete(String name) {
+		// TODO TEST ME
+		name = name.substring(0, name.length() - 1).trim();
+		log.info("Deleting person " + name);
+		Person p = personRepository.findByName(name);
+		if (p != null) {
+			personRepository.delete(p);
+		}
+	}
 
 	/**
 	 * Load forums
@@ -139,28 +172,156 @@ public class DBLoader {
 				// not present.
 				String[] v = CrudeYAMLParser.extractItem(line);
 				String name = v[0];
-				int k = forumRepository.hasName(name);
-				if (k == 0) {
-					Forum person = new Forum(name);
-					forumRepository.save(person);
-					forumNew++;
+				if (name.endsWith("-")) {
+					forumDelete(name);
 				} else {
-					forumExists++;
+					int k = forumRepository.hasName(name);
+					if (k == 0) {
+						Forum node = new Forum(name);
+						forumRepository.save(node);
+						forumNew++;
+					} else {
+						forumExists++;
+					}
 				}
+			} else {
+				rdr.rescan();
+				break;
 			}
 		}
 		log.info(forumExists + " forums already existed.");
 		log.info(forumNew + " forums added.");
 		log.info((forumNew + forumExists) + " forums total.");
-		rdr.rescan();
-		rdr.rescan();
-		;
 	}
 
 	// ===
 
+	private void forumDelete(String name) {
+		// TODO: TEST ME
+		name = name.substring(0, name.length() - 1).trim();
+		log.info("Deleting forum " + name);
+		Forum f = forumRepository.findByName(name);
+		if (f != null) {
+			forumRepository.delete(f);
+		}
+
+	}
+
 	private void loadModerates(RescanningLineNumberReader rdr)
 			throws IOException {
+		int forumNew = 0;
+		int forumExists = 0;
 		// TODO
+		String line;
+		while ((line = rdr.readLine()) != null) {
+			if (CrudeYAMLParser.isItemLine(line)) {
+				// line value is forum name ("- name"). Add if
+				// not present.
+				String[] v = CrudeYAMLParser.extractItem(line);
+				String name = v[0];
+				if (v[1] != null) {
+					// Forum name
+					String forumName = name;
+					int k = forumRepository.hasName(forumName);
+					Forum node = null;
+					if (k == 0) {
+						node = new Forum(forumName);
+						forumRepository.save(node);
+						forumNew++;
+					} else {
+						forumExists++;
+						node =
+								forumRepository
+									.findByName(forumName);
+					}
+
+					loadModerateUsers(forumName, rdr);
+				}
+				// int k = forumRepository.hasName(name);
+				// if (k == 0) {
+				// Forum person = new Forum(name);
+				// forumRepository.save(person);
+				// forumNew++;
+				// } else {
+				// forumExists++;
+				// }
+			}
+		}
+		// log.info(forumExists + " forums already existed.");
+		// log.info(forumNew + " forums added.");
+		// log.info((forumNew + forumExists) + " forums total.");
+		rdr.rescan();
+	}
+
+	private void loadModerateUsers(String forumName,
+			RescanningLineNumberReader rdr) throws IOException {
+		log.debug("Group " + forumName);
+		String line;
+
+		Forum forum = forumRepository.findByName(forumName);
+		if (forum == null) {
+			log.warn("Forum was not previously defined. Defining forum '"
+					+ forumName + "'");
+			forum = new Forum(forumName);
+			forum = forumRepository.save(forum);
+		}
+
+		Transaction trans = graphDatabaseService.beginTx();
+		try {
+			while ((line = rdr.readLine()) != null) {
+				if (CrudeYAMLParser.isItemLine(line)) {
+					String[] v =
+							CrudeYAMLParser.extractItem(line);
+					String name = v[0];
+					log.debug("  Name " + name);
+					if (v[1] == null) {
+						// User name. Add to group. (- remove
+						// from
+						// group )
+						if (name.endsWith("-")) {
+							forumRemove(forum, name);
+						} else {
+							Person p =
+									personRepository
+										.findByName(name);
+							if (p == null) {
+								p = new Person(name);
+								forum.getModerators().add(p);
+							}
+							forum.getModerators().add(p);
+						}
+					} else {
+						// New group
+						rdr.rescan();
+						break;
+					}
+				}
+			}
+			// Update persistent
+			forumRepository.save(forum);
+			trans.success();
+		} catch (Exception ex) {
+			log.error("Unable to set moderation", ex);
+			trans.failure();
+			throw new RuntimeException(
+					"Unable to set moderation", ex);
+		}
+	}
+
+	/**
+	 * Remove person from forum if person exists and is in forum.
+	 * 
+	 * @param forum
+	 * @param name
+	 * 
+	 *            TODO: Test ME!
+	 */
+	private void forumRemove(Forum forum, String name) {
+		name = name.substring(0, name.length() - 1).trim();
+
+		Person p = personRepository.findByName(name);
+		if (p != null) {
+			forum.getModerators().remove(p);
+		}
 	}
 }

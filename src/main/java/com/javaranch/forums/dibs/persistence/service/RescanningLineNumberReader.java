@@ -73,7 +73,7 @@ public class RescanningLineNumberReader extends LineNumberReader {
 		String line;
 		while ((line = super.readLine()) != null) {
 			if (log.isDebugEnabled()) {
-				System.out.println(">>> " + line);
+				log.debug(">>> " + line);
 			}
 
 			line = trimComent(line);

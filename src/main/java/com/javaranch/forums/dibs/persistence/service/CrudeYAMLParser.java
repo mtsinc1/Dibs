@@ -3,6 +3,8 @@ package com.javaranch.forums.dibs.persistence.service;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.log4j.Logger;
+
 /**
  * Parser for YAML text
  * 
@@ -11,6 +13,11 @@ import java.util.regex.Pattern;
  * @TestWith CrudeYAMLParserTest
  */
 public class CrudeYAMLParser {
+	
+	/* Logger */
+	
+	final private static Logger log =
+			Logger.getLogger(CrudeYAMLParser.class);
 	// ===
 	final private static Pattern ITEM_LINE_PAT = Pattern
 			.compile("\\s*\\-.*");
@@ -51,7 +58,10 @@ public class CrudeYAMLParser {
 				s[1] = s1.trim();
 			}
 		}
-		System.out.println("s0=" + s[0] + ", s1=" + s[1]);
+		
+		if ( log.isDebugEnabled() ) {
+			log.debug("s0=" + s[0] + ", s1=" + s[1]);
+		}
 		return s;
 	}
 
