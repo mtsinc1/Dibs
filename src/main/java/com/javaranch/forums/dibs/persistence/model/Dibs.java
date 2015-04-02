@@ -5,7 +5,7 @@ import org.springframework.data.neo4j.annotation.GraphId;
 import org.springframework.data.neo4j.annotation.RelationshipEntity;
 import org.springframework.data.neo4j.annotation.StartNode;
 
-@RelationshipEntity(type = "DIBS_ON")
+@RelationshipEntity(type = Dibs.CONNECT_DIBS)
 public class Dibs {
 	
 	// Relationship types
@@ -16,9 +16,9 @@ public class Dibs {
 	Long nodeId;
 	
 	@StartNode
-	Person person;
+	public Person person;
 	@EndNode
-	Forum forum;
+	public Forum forum;
 	int priority;
 	
 	public Dibs() {
@@ -36,6 +36,34 @@ public class Dibs {
 		this.priority = priority;
 	}
 	
+	/**
+	 * @return the person
+	 */
+	public Person getPerson() {
+		return person;
+	}
+
+	/**
+	 * @param person the person to set
+	 */
+	public void setPerson(Person person) {
+		this.person = person;
+	}
+
+	/**
+	 * @return the forum
+	 */
+	public Forum getForum() {
+		return forum;
+	}
+
+	/**
+	 * @param forum the forum to set
+	 */
+	public void setForum(Forum forum) {
+		this.forum = forum;
+	}
+
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
@@ -46,33 +74,5 @@ public class Dibs {
 				+ "]";
 	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#hashCode()
-	 */
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result =
-				prime
-						* result
-						+ ((nodeId == null) ? 0 : nodeId
-							.hashCode());
-		return result;
-	}
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) return true;
-		if (obj == null) return false;
-		if (getClass() != obj.getClass()) return false;
-		Dibs other = (Dibs) obj;
-		if (nodeId == null) {
-			if (other.nodeId != null) return false;
-		} else if (!nodeId.equals(other.nodeId)) return false;
-		return true;
-	}
 }
