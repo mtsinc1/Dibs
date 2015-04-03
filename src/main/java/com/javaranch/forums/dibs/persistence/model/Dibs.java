@@ -16,6 +16,13 @@ public class Dibs {
 	@GraphId
 	Long nodeId;
 	
+	/**
+	 * @return the nodeId
+	 */
+	public Long getNodeId() {
+		return nodeId;
+	}
+
 	@Fetch @StartNode
 	public Person person;
 	@Fetch @EndNode

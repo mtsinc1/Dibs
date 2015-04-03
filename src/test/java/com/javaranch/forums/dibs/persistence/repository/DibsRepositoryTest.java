@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.conversion.Result;
@@ -20,6 +21,8 @@ import com.javaranch.forums.dibs.persistence.model.Person;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations={"/testApplicationContext.xml"})
 public class DibsRepositoryTest {
+
+	private static final String ROCK_ARRANGING = "Rock Arranging";
 
 	@Autowired
 	Neo4jTemplate template;
@@ -43,34 +46,51 @@ public class DibsRepositoryTest {
 		node2 = personRepository.save(node2);
 		
 		Forum f;
-		f = new Forum("Rock Arranging");
+		f = new Forum(ROCK_ARRANGING);
 //		f.getDibsBidders().add(node1);
 //		f.getDibsBidders().add(node2);
 		f = forumRepository.save( f);
-//
-//		node1.getDibsList().add(f);
-//		template.save(node1);
-//		node2.getDibsList().add(f);
-//		template.save(node2);
-		tx.success();
-		
-		
 		tx = template.getGraphDatabase().beginTx();
-		Dibs d1 = new Dibs(node1, f, 1);
+		Dibs d1 = new Dibs(node1, f, 5);
 		d1.person = node1;
 		d1.forum = f;
 		Dibs d2 = new Dibs(node2, f, 2);
 		d1 = dibsRepository.save(d1);
 		d2 = dibsRepository.save(d2);
 		
+//		f.getDibsBidders().add(d1);
+		tx.success();
+
+		//===
+		tx = template.getGraphDatabase().beginTx();
+		f = new Forum("Axe Chipping");
+		f = forumRepository.save( f);
+		Dibs d3 = new Dibs(node2, f, 5);
+		d3 = dibsRepository.save(d3);
 		tx.success();
 		
-		List<Dibs> list = dibsRepository.findAllDibs(f);
+		//===
+
+		
+		Result<Dibs> list = dibsRepository.findAll();
 		for (Dibs zz: list) {
 			System.out
-				.println(zz);
+				.println("DIBSLIST: " + zz);
 		}
-		assertNotNull(list);
+//		assertNotNull(list);
 //		assertEquals(2, list.size());
+		
+		Forum arrangers = forumRepository.findByName("Axe Chipping");
+		assertNotNull(arrangers);
+		
+		List<Dibs> alist = arrangers.getDibsBidders();
+		for ( Dibs d: alist ) {
+			System.out.println("ARRANGE: "+d);
+			
+			Dibs u = dibsRepository.findOne(d.getNodeId());
+//			Node n = (Node) u;
+//			n.getR
+			System.out.println("LOOKUP: "+u);
+		}
 	}
 }

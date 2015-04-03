@@ -18,6 +18,7 @@ import com.javaranch.forums.dibs.persistence.model.Forum;
  */
 public interface DibsRepository extends GraphRepository<Dibs> {
 
-	@Query(value="MATCH (n:Dibs {forum.name: {forum.name}}) return n ORDER BY n.priority ")
-	List<Dibs> findAllDibs(@Param("forum") Forum f);
+	// This doesn't work:
+	@Query(value="MATCH (f:Forum {name: {fname}}) return f.dibsBidders")
+	List<Dibs> findAllDibs(@Param("fname") String f);
 }
