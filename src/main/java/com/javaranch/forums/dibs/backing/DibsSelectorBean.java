@@ -12,6 +12,9 @@ import javax.faces.bean.SessionScoped;
 import javax.faces.model.SelectItem;
 
 import org.apache.log4j.Logger;
+import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Transaction;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.javaranch.forums.dibs.persistence.model.Dibs;
 import com.javaranch.forums.dibs.persistence.model.Forum;
@@ -42,6 +45,20 @@ public class DibsSelectorBean implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 
+	// ---
+	@ManagedProperty("#{graphDatabaseService}")
+	private transient GraphDatabaseService graphDatabaseService;
+
+	/**
+	 * @param forumRepository
+	 *            the forumRepository to set
+	 */
+	public void setGraphDatabaseService(
+			GraphDatabaseService service) {
+		this.graphDatabaseService = service;
+	}
+	
+	//===
 	/**
 	 * ID of the person being connected.
 	 */
@@ -149,11 +166,13 @@ public class DibsSelectorBean implements Serializable {
 
 	private List<SelectItem> buildForumList() {
 		List<SelectItem> forumList = new ArrayList<SelectItem>();
+		Transaction trans = this.graphDatabaseService.beginTx();
 		List<Forum> forums = forumService.findAllForums();
 		for (Forum f : forums) {
 			SelectItem si = new SelectItem(f.nodeId, f.name);
 			forumList.add(si);
 		}
+		trans.close();
 		return forumList;
 	}
 
@@ -201,17 +220,19 @@ public class DibsSelectorBean implements Serializable {
 		this.personId = personId;
 		this.connectionType = connectionType;
 
+		Transaction trans = this.graphDatabaseService.beginTx();
 		Person p = this.personRepository.findOne(personId);
+		trans.success();
 		this.person = p;
-//		Iterable<Dibs> forums = p.getDibsList();
-//		final int fsize = forums.size();
-//		List<Long> fpicked = new ArrayList<Long>(fsize);
-////		for (Forum f : forums) {
-////			log.info(f.toString());
-////			fpicked.add(f.nodeId);
-////		}
-//		int ssz = fpicked.size();
-//		this.setChoices(fpicked.toArray(new Long[ssz]));
+		Iterable<Dibs> forumdibs = p.getDibsList();
+		final int fsize = 4;
+		List<Long> fpicked = new ArrayList<Long>(fsize);
+		for (Dibs f : forumdibs) {
+			log.info(f.toString());
+			fpicked.add(f.getPerson().nodeId);
+		}
+		int ssz = fpicked.size();
+		this.setChoices(fpicked.toArray(new Long[ssz]));
 	}
 
 	/**

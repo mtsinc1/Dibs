@@ -55,6 +55,12 @@ public class Person implements java.io.Serializable {
 		this.name = name;
 	}
 
+	
+	public Dibs dibsOn(Forum f, int priority) {
+		Dibs d = new Dibs(this, f, priority);
+		this.dibsList.add(d);
+		return d;
+	}
 //	/**
 //	 * @return the moderatesList
 //	 */

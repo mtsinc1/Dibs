@@ -1,12 +1,16 @@
 package com.javaranch.forums.dibs.persistence.service;
 
 import java.io.IOException;
+import java.io.Serializable;
+
+import javax.faces.model.SelectItem;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.neo4j.conversion.Result;
 import org.springframework.stereotype.Repository;
 
 import com.javaranch.forums.dibs.persistence.model.Forum;
@@ -22,7 +26,7 @@ import com.javaranch.forums.dibs.persistence.repository.PersonRepository;
  * @TestedBy DBLoaderTest
  */
 @Repository(value = "dbLoader")
-public class DBLoader {
+public class DBLoader implements Serializable {
 	/**
 	 * Data format:
 	 * 
@@ -50,8 +54,8 @@ public class DBLoader {
 	 * Moderations of undeclared persons/forums will
 	 * automatically add them with a warning.
 	 * 
-	 * Appending a "-" to the person or forum name deletes
-	 * that node (if present).
+	 * Appending a "-" to the person or forum name deletes that
+	 * node (if present).
 	 * 
 	 * TODO: under moderates, the construct "- forum: -" should
 	 * remove all moderators from that forum.
@@ -97,6 +101,8 @@ public class DBLoader {
 	public void load(final RescanningLineNumberReader rdr)
 			throws IOException {
 		String line;
+		
+		Transaction trans = graphDatabaseService.beginTx();
 		while ((line = rdr.readLine()) != null) {
 			if (line.length() == 0) {
 				continue;
@@ -115,6 +121,10 @@ public class DBLoader {
 						+ rdr.getLineNumber());
 			}
 		}
+		dumpLoad("Last in-trans.");
+		trans.success();
+		trans.close();
+		//dumpLoad("Trans closed.");
 	}
 
 	private void loadPersons(RescanningLineNumberReader rdr)
@@ -135,18 +145,34 @@ public class DBLoader {
 			} else {
 				int k = personRepository.hasName(name);
 				if (k == 0) {
+					if (log.isDebugEnabled()) {
+						log.debug("Adding " + name);
+					}
 					Person person = new Person(name);
 					personRepository.save(person);
 					personNew++;
 				} else {
+					if (log.isDebugEnabled()) {
+						log.debug("Exists " + name);
+					}
 					personExists++;
 				}
 			}
 		}
+		dumpLoad("Persons loaded.");
 		log.info(personExists + " persons already existed.");
 		log.info(personNew + " persons added.");
 		log.info((personNew + personExists) + " persons total.");
 		rdr.rescan();
+	}
+
+	public void dumpLoad(String string) {
+		// TODO Auto-generated method stub
+		log.warn(">>>DUMPLOAD: " +string);
+		Result<Person> persons = personRepository.findAll();
+		for (Person person : persons) {
+			log.info("Person: " + person.getName());
+		}
 	}
 
 	// ===
@@ -265,46 +291,36 @@ public class DBLoader {
 			forum = forumRepository.save(forum);
 		}
 
-		Transaction trans = graphDatabaseService.beginTx();
-		try {
-			while ((line = rdr.readLine()) != null) {
-				if (CrudeYAMLParser.isItemLine(line)) {
-					String[] v =
-							CrudeYAMLParser.extractItem(line);
-					String name = v[0];
-					log.debug("  Name " + name);
-					if (v[1] == null) {
-						// User name. Add to group. (- remove
-						// from
-						// group )
-						if (name.endsWith("-")) {
-							forumRemove(forum, name);
-						} else {
-							Person p =
-									personRepository
-										.findByName(name);
-							if (p == null) {
-								p = new Person(name);
-								forum.getModerators().add(p);
-							}
+		while ((line = rdr.readLine()) != null) {
+			if (CrudeYAMLParser.isItemLine(line)) {
+				String[] v = CrudeYAMLParser.extractItem(line);
+				String name = v[0];
+				log.debug("  Name " + name);
+				if (v[1] == null) {
+					// User name. Add to group. (- remove
+					// from
+					// group )
+					if (name.endsWith("-")) {
+						forumRemove(forum, name);
+					} else {
+						Person p =
+								personRepository
+									.findByName(name);
+						if (p == null) {
+							p = new Person(name);
 							forum.getModerators().add(p);
 						}
-					} else {
-						// New group
-						rdr.rescan();
-						break;
+						forum.getModerators().add(p);
 					}
+				} else {
+					// New group
+					rdr.rescan();
+					break;
 				}
 			}
-			// Update persistent
-			forumRepository.save(forum);
-			trans.success();
-		} catch (Exception ex) {
-			log.error("Unable to set moderation", ex);
-			trans.failure();
-			throw new RuntimeException(
-					"Unable to set moderation", ex);
 		}
+		// Update persistent
+		forumRepository.save(forum);
 	}
 
 	/**

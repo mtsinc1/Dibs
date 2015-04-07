@@ -9,13 +9,16 @@ import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.SessionScoped;
 import javax.faces.model.ListDataModel;
 
+import org.springframework.data.neo4j.conversion.Result;
+
+import com.javaranch.forums.dibs.persistence.model.Dibs;
 import com.javaranch.forums.dibs.persistence.model.Forum;
 import com.javaranch.forums.dibs.persistence.model.Person;
 import com.javaranch.forums.dibs.persistence.repository.ForumRepository;
 import com.javaranch.forums.dibs.persistence.service.ForumService;
 
 /**
- * Backing bean for report
+ * Backing bean for report.
  * 
  * @author timh
  * @since Jun 5, 2014
@@ -153,12 +156,12 @@ public class ReportBean {
 		ArrayList<ClaimedForum> olist =
 				new ArrayList<ClaimedForum>();
 		for (Forum forum : flist) {
-//			ClaimedForum cf = new ClaimedForum(forum.name);
-//			Set<Person> dl = forum.getDibsBidders();
-//			for (Person person : dl) {
-//				cf.dibsList.add(person);
-//			}
-//			olist.add(cf);
+			ClaimedForum cf = new ClaimedForum(forum.name);
+			List<Dibs> dibs = forum.getDibsBidders();
+			for (Dibs d : dibs) {
+				cf.dibsList.add(d.getPerson());
+			}
+			olist.add(cf);
 		}
 		return olist;
 	}
@@ -221,31 +224,31 @@ public class ReportBean {
 
 	// $SECT Sub-report by person
 
-	private ListDataModel<DibsMaker> dibsMakerList;
+	private ListDataModel<ModerationMaker> dibsMakerList;
 
 	/**
 	 * @return the dibsMakerList
 	 */
-	public ListDataModel<DibsMaker> getDibsMakerList() {
+	public ListDataModel<ModerationMaker> getDibsMakerList() {
 		if (dibsMakerList == null) {
-			dibsMakerList = buildDibsMakerList();
+			dibsMakerList = buildModeratorMakerList();
 		}
 		return dibsMakerList;
 	}
 
-	private ListDataModel<DibsMaker> buildDibsMakerList() {
-		List<DibsMaker> list = loadDibsMakerList();
-		ListDataModel<DibsMaker> model =
-				new ListDataModel<DibsMaker>(list);
+	private ListDataModel<ModerationMaker> buildModeratorMakerList() {
+		List<ModerationMaker> list = loadDibsMakerList();
+		ListDataModel<ModerationMaker> model =
+				new ListDataModel<ModerationMaker>(list);
 		return model;
 	}
 
-	private List<DibsMaker> loadDibsMakerList() {
+	private List<ModerationMaker> loadDibsMakerList() {
 		List<Person> flist =
 				this.forumService.findAllPersons();
-		ArrayList<DibsMaker> olist = new ArrayList<DibsMaker>();
+		ArrayList<ModerationMaker> olist = new ArrayList<ModerationMaker>();
 		for (Person person : flist) {
-			DibsMaker dm = new DibsMaker(person.getName(), "");
+			ModerationMaker dm = new ModerationMaker(person.getName(), "");
 			olist.add(dm);
 
 //			Set	<Forum> dibOn = person.getDibsList();
@@ -265,7 +268,7 @@ public class ReportBean {
 		return olist;
 	}
 
-	public class DibsMaker {
+	public class ModerationMaker {
 		private String name;
 		private String forumNames;
 
@@ -275,7 +278,7 @@ public class ReportBean {
 		 * @param name
 		 * @param forumNames
 		 */
-		public DibsMaker(String name, String forumNames) {
+		public ModerationMaker(String name, String forumNames) {
 			this.name = name;
 			this.forumNames = forumNames;
 		}
@@ -310,5 +313,63 @@ public class ReportBean {
 			this.forumNames = forumNames;
 		}
 
+	}
+	
+	//$SECT
+	public List<DibsMaker> dibsModel;
+	
+	/**
+	 * @return the dibsModel
+	 */
+	public List<DibsMaker> getDibsModel() {
+		if ( this.dibsModel == null ) {
+			this.dibsModel = buildDibsModel();
+		}
+		return this.dibsModel;
+	}
+
+	private List<DibsMaker> buildDibsModel() {
+		Result<Forum> forums = this.forumRepository.findAll();
+		ArrayList<DibsMaker> list = new ArrayList<DibsMaker>(45);
+		for ( Forum forum : forums ) {
+			DibsMaker maker = new DibsMaker();
+			maker.setForumName(forum.getName());
+			List<Dibs> dlist = forum.getDibsBidders();
+			for (Dibs dibs : dlist) {
+				maker.getDibs().add(dibs);
+			}
+		}
+		return list;
+	}
+
+	//===
+	public class DibsMaker {
+		private String forumName;
+		/**
+		 * @return the forumName
+		 */
+		public String getForumName() {
+			return forumName;
+		}
+		/**
+		 * @param forumName the forumName to set
+		 */
+		public void setForumName(String forumName) {
+			this.forumName = forumName;
+		}
+//--
+		private List<Dibs> dibs = new ArrayList<Dibs>(3);
+		/**
+		 * @return the dibs
+		 */
+		public List<Dibs> getDibs() {
+			return dibs;
+		}
+		/**
+		 * @param dibs the dibs to set
+		 */
+		public void setDibs(List<Dibs> dibs) {
+			this.dibs = dibs;
+		}
 	}
 }

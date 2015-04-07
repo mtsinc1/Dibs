@@ -14,6 +14,7 @@ import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.SessionScoped;
 import javax.faces.model.SelectItem;
 
+import org.apache.log4j.Logger;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
 import org.richfaces.event.FileUploadEvent;
@@ -44,6 +45,11 @@ public class AdminMainBean implements Serializable {
 	 */
 	private static final long serialVersionUID = 1L;
 
+	/* Logger */
+	
+	final private static Logger log =
+			Logger.getLogger(AdminMainBean.class);
+	
 	// --
 	@ManagedProperty("#{graphDatabaseService}")
 	private transient GraphDatabaseService graphDatabaseService;
@@ -140,13 +146,19 @@ public class AdminMainBean implements Serializable {
 	private List<SelectItem> buildPersonList() {
 		List<SelectItem> plist = new ArrayList<SelectItem>();
 
+		//dbLoader.dumpLoad("Build new list");
+
 		Transaction trans = graphDatabaseService.beginTx();
 		Result<Person> persons = personRepository.findAll();
 		for (Person person : persons) {
 			plist.add(new SelectItem(person.nodeId, person
 				.getName()));
 		}
-		trans.success();
+		trans.close();
+		log.debug(plist.size() +" entries loaded.");
+		
+		//dbLoader.dumpLoad("Build completed.");
+
 		return plist;
 	}
 
@@ -246,6 +258,10 @@ public class AdminMainBean implements Serializable {
 
 		dbLoader.load(rdr);
 
+		//dbLoader.dumpLoad("Back in admin");
+
 		this.personList = null;
+		//dbLoader.dumpLoad("Model reset");
+		
 	}
 }

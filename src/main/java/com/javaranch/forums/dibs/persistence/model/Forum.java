@@ -1,13 +1,9 @@
 package com.javaranch.forums.dibs.persistence.model;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import javax.persistence.OrderBy;
-
-import org.springframework.data.neo4j.annotation.Fetch;
 import org.springframework.data.neo4j.annotation.GraphId;
 import org.springframework.data.neo4j.annotation.Indexed;
 import org.springframework.data.neo4j.annotation.NodeEntity;
@@ -64,24 +60,12 @@ public class Forum implements java.io.Serializable {
 	List<Dibs> dibsBidders = new ArrayList<Dibs>(5);
 	
 	/**
-	 * @return the dibsBidders
+	 * @return the dibsBidders. Note that presently only their nodeIds are valid!
 	 */
-	@Query("START f=node({self}) MATCH (f)-[:dibs_on]-(n:Person) return n ORDER BY n.priority")
+	@Query("START f=node({self}) MATCH (f)-[n:dibs_on]-(p:Person) return n ORDER BY n.priority")
 	public List<Dibs> getDibsBidders() {
-		System.out.println("DIB BIDDER COUNT="+ dibsBidders.size()+", name="+ name);
-		if ( !dibsBidders.isEmpty()) {
-			Person p = dibsBidders.get(0).getPerson();
-			System.out.println("P="+p);
-		}
 		return dibsBidders;
 	}
-
-//	/**
-//	 * @param dibsBidders the dibsBidders to set
-//	 */
-//	public void setDibsBidders(Set<Person> dibsBidders) {
-//		this.dibsBidders = dibsBidders;
-//	}
 
 	//--
 	@RelatedTo(type="MODERATES")

@@ -51,12 +51,19 @@ public class DibsRepositoryTest {
 //		f.getDibsBidders().add(node2);
 		f = forumRepository.save( f);
 		tx = template.getGraphDatabase().beginTx();
-		Dibs d1 = new Dibs(node1, f, 5);
-		d1.person = node1;
-		d1.forum = f;
-		Dibs d2 = new Dibs(node2, f, 2);
-		d1 = dibsRepository.save(d1);
-		d2 = dibsRepository.save(d2);
+//		Dibs d1 = new Dibs(node1, f, 5);
+//		d1.person = node1;
+//		d1.forum = f;
+//		Dibs d2 = new Dibs(node2, f, 2);
+//		d1 = dibsRepository.save(d1);
+//		d2 = dibsRepository.save(d2);
+		
+		node1.dibsOn(f, 3);
+		node2.dibsOn(f, 2);
+
+		node1 = personRepository.save(node1);
+		node2 = personRepository.save(node2);
+
 		
 //		f.getDibsBidders().add(d1);
 		tx.success();
@@ -80,7 +87,7 @@ public class DibsRepositoryTest {
 //		assertNotNull(list);
 //		assertEquals(2, list.size());
 		
-		Forum arrangers = forumRepository.findByName("Axe Chipping");
+		Forum arrangers = forumRepository.findByName(ROCK_ARRANGING);
 		assertNotNull(arrangers);
 		
 		List<Dibs> alist = arrangers.getDibsBidders();
