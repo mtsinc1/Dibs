@@ -177,7 +177,7 @@ public class DibsSelectorBean implements Serializable {
 	}
 
 	public String doSave() {
-		this.listChanged();
+		this.saveChangedSelections();
 		return "selector";
 	}
 
@@ -193,15 +193,19 @@ public class DibsSelectorBean implements Serializable {
 	/**
 	 * Commit the new Dibs connections
 	 */
-	public void listChanged() {
+	public void saveChangedSelections() {
 		// . Break all existing connections of this type.
 		// . Construct new connections.
 		// . Commit changes.
-		this.forumService.clearDibs(this.personId);
+		Transaction trans = this.graphDatabaseService.beginTx();
+		Person person = this.personRepository.findOne(this.personId);
+		this.connectionService.clearDibs(person);
 		
 		this.forumService.connectDibs(this.personId,
 			idList(this.choices));
-
+		trans.success();
+		trans.close();
+		
 		JSFUtils.addInfoMessage("List has been updated.");
 		log.info("+++++ LIST CHANGED  +++++");
 	}
@@ -222,14 +226,17 @@ public class DibsSelectorBean implements Serializable {
 
 		Transaction trans = this.graphDatabaseService.beginTx();
 		Person p = this.personRepository.findOne(personId);
-		trans.success();
 		this.person = p;
-		Iterable<Dibs> forumdibs = p.getDibsList();
+		List<Dibs> forumdibs =this.connectionService.findDibsOn(p);
+		trans.success();
+
 		final int fsize = 4;
 		List<Long> fpicked = new ArrayList<Long>(fsize);
 		for (Dibs f : forumdibs) {
-			log.info(f.toString());
-			fpicked.add(f.getPerson().nodeId);
+			if ( log.isTraceEnabled() ) {
+				log.trace(f.toString());
+			}
+			fpicked.add(f.getForum().nodeId);
 		}
 		int ssz = fpicked.size();
 		this.setChoices(fpicked.toArray(new Long[ssz]));

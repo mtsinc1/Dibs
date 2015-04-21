@@ -7,7 +7,7 @@ import org.springframework.data.neo4j.annotation.RelationshipEntity;
 import org.springframework.data.neo4j.annotation.StartNode;
 
 @RelationshipEntity(type = Dibs.CONNECT_DIBS)
-public class Dibs {
+public class Dibs implements java.io.Serializable {
 	
 	// Relationship types
 	public final static String CONNECT_DIBS = "dibs_on";

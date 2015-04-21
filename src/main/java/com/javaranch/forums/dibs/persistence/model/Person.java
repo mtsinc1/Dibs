@@ -6,6 +6,7 @@ import java.util.Set;
 import org.springframework.data.neo4j.annotation.GraphId;
 import org.springframework.data.neo4j.annotation.Indexed;
 import org.springframework.data.neo4j.annotation.NodeEntity;
+import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.annotation.RelatedToVia;
 
 @NodeEntity
@@ -83,12 +84,11 @@ public class Person implements java.io.Serializable {
 		return dibsList;
 	}
 
-//	/**
-//	 * @param dibsList
-//	 *            the dibsList to set
-//	 */
-//	public void setDibsList(Set<Dibs> dibsList) {
-//		this.dibsList = dibsList;
-//	}
+	public void removeDibs(Forum forum) {
+		this.dibsList.remove(forum);
+	}
 
+	@Query("START f=node({self}) MATCH (f)-[n:dibs_on]->(:Forum) DELETE n")
+	public void removeAllDibs() {
+	}
 }

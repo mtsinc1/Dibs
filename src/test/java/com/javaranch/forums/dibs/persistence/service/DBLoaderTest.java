@@ -11,6 +11,8 @@ import java.io.LineNumberReader;
 import org.apache.log4j.Logger;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -48,6 +50,9 @@ public class DBLoaderTest {
 
 	@Autowired
 	private ForumRepository forumRepository;
+	
+	@Autowired
+	private transient GraphDatabaseService graphDatabaseService;
 
 	@Test
 	public void test1() throws IOException {
@@ -68,6 +73,8 @@ public class DBLoaderTest {
 		nforums = forumRepository.count();
 		assertEquals(4, nforums);
 
+		
+		Transaction trans = this.graphDatabaseService.beginTx();
 		{
 			Person p1 =
 					personRepository
@@ -89,6 +96,7 @@ public class DBLoaderTest {
 			npersons = personRepository.count();
 			assertEquals(3, npersons);			
 		}
+		trans.close();
 	}
 
 	/**

@@ -94,14 +94,17 @@ public class ForumService {
 		return list;
 	}
 
+	/**
+	 * Save a list of Dibs. Assumes no existing list.
+	 * @param personId Person placing Dibs
+	 * @param idList the Forum IDs to place Dibs on.
+	 */
 	public void connectDibs(long personId, long[] idList) {
 		Person person = this.personRepository.findOne(personId);
 		if (person == null) {
 			throw new RuntimeException("Person ID " + personId
 					+ " not found.");
 		}
-
-		//Set<Forum> dibsList = new HashSet<Forum>(idList.length);
 
 		int priority = 1;
 		for (long forumId : idList) {
@@ -156,14 +159,16 @@ public class ForumService {
 					+ " not found.");
 		}
 
-		Set<Forum> dibsList = forumRepository.findDibsOn(person);
-		for (Forum f : dibsList) {
-			f.getDibsBidders().remove(person);
-			f = this.forumRepository.save(f);
-		}
-
-//		person.getDibsList().clear();
-		this.personRepository.save(person);
+		person.removeAllDibs();
+//		
+//		Set<Forum> dibsList = forumRepository.findDibsOn(person);
+//		for (Forum f : dibsList) {
+//			f.removeBidder(person);
+//			f = this.forumRepository.save(f);
+//		}
+//
+////		person.getDibsList().clear();
+		//this.personRepository.save(person);
 	}
 
 	// ===

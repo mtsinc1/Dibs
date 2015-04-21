@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.springframework.data.neo4j.annotation.Fetch;
 import org.springframework.data.neo4j.annotation.GraphId;
 import org.springframework.data.neo4j.annotation.Indexed;
 import org.springframework.data.neo4j.annotation.NodeEntity;
@@ -57,6 +58,7 @@ public class Forum implements java.io.Serializable {
 	
 	//--
 	@RelatedToVia
+	@Fetch
 	List<Dibs> dibsBidders = new ArrayList<Dibs>(5);
 	
 	/**
@@ -67,6 +69,12 @@ public class Forum implements java.io.Serializable {
 		return dibsBidders;
 	}
 
+
+	@Query("START f=node({self}) MATCH (f)-[n:dibs_on]-(p:Person) DELETE n")
+	public void removeBidder(Person person) {
+		person.removeDibs(this);
+	}
+	
 	//--
 	@RelatedTo(type="MODERATES")
 	Set<Person> moderators;
