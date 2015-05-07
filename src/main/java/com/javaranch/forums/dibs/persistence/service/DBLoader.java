@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.conversion.Result;
 import org.springframework.stereotype.Repository;
 
+import com.javaranch.forums.dibs.persistence.model.Dibs;
 import com.javaranch.forums.dibs.persistence.model.Forum;
 import com.javaranch.forums.dibs.persistence.model.Person;
 import com.javaranch.forums.dibs.persistence.repository.ForumRepository;
@@ -41,13 +42,21 @@ public class DBLoader implements Serializable {
 	 *  - butterfly collecting
 	 *  - cookie baking
 	 *  - butterfly arranging
+	 * dibs:
+	 *   - person: John Doe
+	 *     - cookie baking
+	 *     - butterfly arranging
+	 *   - person: Harriet Jones
+	 *     - butterfly collecting
 	 * moderates:
-	 *  forum: name:
-	 *     cookie baking persons:
+	 *  forum:
+	 *   name: cookie baking
+	 *   persons:
 	 *      - John Doe
 	 *      - Harriet Jones
 	 *  forum:
 	 *     name: etc.
+     *      
 	 *  </code>
 	 * </pre>
 	 * <p/>
@@ -116,6 +125,8 @@ public class DBLoader implements Serializable {
 				loadForums(rdr);
 			} else if (line.startsWith("moderates:")) {
 				loadModerates(rdr);
+			} else if (line.startsWith("dibs:")) {
+				loadDibs(rdr);
 			} else {
 				log.warn("Invalid line in input: line "
 						+ rdr.getLineNumber());
@@ -248,6 +259,95 @@ public class DBLoader implements Serializable {
 
 	}
 
+	//===
+	/**
+	 * Load person's Dibs requests, in priority order.
+	 * 
+	 * Form is:
+	 * <code>
+	 *   person:
+	 *     - forum
+	 *     - forum
+	 *     - forum
+	 * </code>
+	 * @param rdr
+	 * @throws IOException
+	 */
+	private void loadDibs(RescanningLineNumberReader rdr)
+			throws IOException {
+		String line;
+		while ((line = rdr.readLine()) != null) {
+			if (CrudeYAMLParser.isItemLine(line)) {
+				// line value is forum name ("- name"). Add if
+				// not present.
+				String[] v = CrudeYAMLParser.extractItem(line);
+				String name = v[0];
+				// Name MUST be "person"
+				if (v[1] != null) {
+					// Person name
+					String personName = name;
+					int k = personRepository.hasName(personName);
+					Person node = null;
+					if (k == 0) {
+						node = new Person(personName);
+						personRepository.save(node);
+					} else {
+						node =
+								personRepository
+									.findByName(personName);
+					}
+					loadPersonDibs( node, rdr );
+				}
+			}
+		}
+		rdr.rescan();		
+	}
+	
+	/**
+	 * Load the forums that a person has placed Dibs on.
+	 * Does not return updated personNode.
+	 * 
+	 * @param personNode person for whom Dibs bids are being
+	 * collected.
+	 * @param rdr Input data source
+	 * @throws IOException 
+	 */
+	private void loadPersonDibs(Person personNode,
+			RescanningLineNumberReader rdr) throws IOException {
+		// Clear old dibs, if any!
+		
+		personNode.clearDibs();
+		String line;
+		int priority = 0;
+		while ((line = rdr.readLine()) != null) {
+			if (CrudeYAMLParser.isItemLine(line)) {
+				// line value is forum name ("- name"). Add if
+				// not present.
+				String[] v = CrudeYAMLParser.extractItem(line);
+				String name = v[0];
+				if (v[1] != null) {
+					// Forum name
+					String forumName = name;
+					int k = forumRepository.hasName(forumName);
+					Forum node = null;
+					if (k == 0) {
+						node = new Forum(forumName);
+						forumRepository.save(node);
+					} else {
+						node =
+								forumRepository
+									.findByName(forumName);
+					}
+					Dibs dibs = new Dibs ( personNode, node, priority++);
+					personNode.addDibs(dibs);
+				}
+			}
+		}
+		personRepository.save(personNode);
+		rdr.rescan();		
+	}
+
+	//===
 	private void loadModerates(RescanningLineNumberReader rdr)
 			throws IOException {
 		String line;

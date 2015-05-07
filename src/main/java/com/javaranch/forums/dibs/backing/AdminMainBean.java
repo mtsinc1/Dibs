@@ -193,7 +193,7 @@ public class AdminMainBean implements Serializable {
 
 	public String goReport() {
 		this.reportBean.init();
-		return "report";
+		return "/admin/report";
 	}
 
 	// $ SECT Export to YAML (results.jsp)

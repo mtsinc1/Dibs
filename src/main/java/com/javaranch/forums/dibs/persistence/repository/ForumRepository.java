@@ -23,8 +23,7 @@ import com.javaranch.forums.dibs.persistence.model.Person;
 @Transactional
 public interface ForumRepository extends GraphRepository<Forum> {
 
-	//@Query(value="MATCH (p:Person)-[:DIBS_ON]->(n:Forum) return n")
-	@Query(value="MATCH (n:Forum)-[:DIBS_ON]->() return DISTINCT n")
+	@Query(value="MATCH (n:Forum) WHERE (:Person)-[:dibs_on]->(n:Forum) return n")
 	public List<Forum> findAllClaimed();
 
 	@Query(value="MATCH (n:Forum) WHERE NOT (n)-[:DIBS_ON]->() return n")

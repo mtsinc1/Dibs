@@ -106,7 +106,7 @@ public class ReportBean {
 	 * @return Array for unclaimed forum names.
 	 */
 	private String[] loadUnclaimed() {
-		List<Forum> flist = forumRepository.findAllUnclaimed();
+		List<Forum> flist = forumService.findAllUnclaimed();
 		int fsize = flist.size();
 		// System.out.println(fsize);
 		String[] u = new String[fsize];
@@ -152,7 +152,7 @@ public class ReportBean {
 
 	private List<ClaimedForum> loadClaimedForumList() {
 		List<Forum> flist =
-				this.forumRepository.findAllClaimed();
+				this.forumService.findAllClaimed();
 		ArrayList<ClaimedForum> olist =
 				new ArrayList<ClaimedForum>();
 		for (Forum forum : flist) {

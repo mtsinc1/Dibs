@@ -89,6 +89,15 @@ public class Person implements java.io.Serializable {
 	}
 
 	@Query("START f=node({self}) MATCH (f)-[n:dibs_on]->(:Forum) DELETE n")
-	public void removeAllDibs() {
+	public void clearDibs() {
+		this.dibsList.clear();
+	}
+
+	/**
+	 * Add, but do not persist a Dibs entry.
+	 * @param dibs Entry to add. Does NOT adjust priority!
+	 */
+	public void addDibs(Dibs dibs) {
+		this.dibsList.add(dibs);
 	}
 }

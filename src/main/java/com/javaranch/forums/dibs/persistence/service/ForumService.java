@@ -8,6 +8,7 @@ import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.conversion.Result;
 import org.springframework.stereotype.Service;
@@ -159,7 +160,7 @@ public class ForumService {
 					+ " not found.");
 		}
 
-		person.removeAllDibs();
+		person.clearDibs();
 //		
 //		Set<Forum> dibsList = forumRepository.findDibsOn(person);
 //		for (Forum f : dibsList) {
@@ -187,12 +188,26 @@ public class ForumService {
 
 	public List<Person> findAllPersons() {
 		ArrayList<Person> lst = new ArrayList<Person>();
-//		Transaction tx = this.graphDatabaseService.beginTx();
+		Transaction tx = this.graphDatabaseService.beginTx();
 		Result<Person> l = this.personRepository.findAll();
 		for (Person person : l) {
 			lst.add(person);
 		}
-//		tx.close();
+		tx.close();
 		return lst;
+	}
+
+	public List<Forum> findAllUnclaimed() {
+		final Transaction tx = this.graphDatabaseService.beginTx();
+		List<Forum> list = this.forumRepository.findAllUnclaimed();
+		tx.close();
+		return list;
+	}
+
+	public List<Forum> findAllClaimed() {
+		final Transaction tx = this.graphDatabaseService.beginTx();
+		List<Forum> list = this.forumRepository.findAllClaimed();
+		tx.close();
+		return list;
 	}
 }
