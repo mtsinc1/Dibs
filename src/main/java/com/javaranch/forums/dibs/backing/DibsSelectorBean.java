@@ -3,7 +3,6 @@ package com.javaranch.forums.dibs.backing;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import javax.annotation.PostConstruct;
 import javax.faces.bean.ManagedBean;
@@ -14,7 +13,6 @@ import javax.faces.model.SelectItem;
 import org.apache.log4j.Logger;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import com.javaranch.forums.dibs.persistence.model.Dibs;
 import com.javaranch.forums.dibs.persistence.model.Forum;
@@ -25,7 +23,7 @@ import com.javaranch.forums.dibs.persistence.service.ForumService;
 
 
 /**
- * Main control panel backing bean.
+ * Backing bean for Dibs selections.
  * 
  * @author timh
  * @since Jun 28, 2012
@@ -154,20 +152,28 @@ public class DibsSelectorBean implements Serializable {
 
 	@PostConstruct
 	public void postConfig() {
-		// foo();
-
-		this.forums = buildForumList();
-		this.choices = new Long[] {};
+		// Deprecated. Functions are now in "begin" method
 	}
 
 	public Long[] getChoices() {
 		return this.choices;
 	}
 
+	/**
+	 * Build Forum selection list. Presently done for every
+	 * beginEdit.
+	 * 
+	 * TODO: Move this to an APPLICATION scope backing bean
+	 * and only update it where forums are added/removed from
+	 * database!
+	 * 
+	 * @return The list of Forum SelectItems
+	 */
 	private List<SelectItem> buildForumList() {
-		List<SelectItem> forumList = new ArrayList<SelectItem>();
 		Transaction trans = this.graphDatabaseService.beginTx();
 		List<Forum> forums = forumService.findAllForums();
+		List<SelectItem> forumList =
+				new ArrayList<SelectItem>(forums.size());
 		for (Forum f : forums) {
 			SelectItem si = new SelectItem(f.nodeId, f.name);
 			forumList.add(si);
@@ -191,22 +197,30 @@ public class DibsSelectorBean implements Serializable {
 	}
 
 	/**
-	 * Commit the new Dibs connections
+	 * Commit the new Dibs connections. Break all existing
+	 * connections of this type. Construct new connections.
+	 * Commit changes.
 	 */
 	public void saveChangedSelections() {
-		// . Break all existing connections of this type.
-		// . Construct new connections.
-		// . Commit changes.
-		Transaction trans = this.graphDatabaseService.beginTx();
-		Person person = this.personRepository.findOne(this.personId);
-		this.connectionService.clearDibs(person);
-		
-		this.forumService.connectDibs(this.personId,
-			idList(this.choices));
-		trans.success();
-		trans.close();
-		
-		JSFUtils.addInfoMessage("List has been updated.");
+		log.debug("Saving...");
+		try (Transaction trans =
+				this.graphDatabaseService.beginTx()) {
+			log.debug("Saving...begin");
+			Person person =
+					this.personRepository.findOne(this.personId);
+			log.debug("Saving...clear");
+
+			this.connectionService.clearDibs(person);
+			log.debug("Saving...update");
+
+			this.connectionService.connect(this.personId,
+				Dibs.CONNECT_DIBS, idList(this.choices));
+			log.debug("Saving...finishing");
+
+			trans.success();
+
+			JSFUtils.addInfoMessage("List has been updated.");
+		}
 		log.info("+++++ LIST CHANGED  +++++");
 	}
 
@@ -221,25 +235,35 @@ public class DibsSelectorBean implements Serializable {
 	 * @see {@link #CONNECT_DIBS}, {@link #CONNECT_MODERATES}
 	 */
 	public void beginEdit(long personId, String connectionType) {
+		this.forums = buildForumList();
+		this.choices = new Long[] {};
+
 		this.personId = personId;
 		this.connectionType = connectionType;
 
-		Transaction trans = this.graphDatabaseService.beginTx();
-		Person p = this.personRepository.findOne(personId);
-		this.person = p;
-		List<Dibs> forumdibs =this.connectionService.findDibsOn(p);
-		trans.success();
+		try (Transaction trans =
+				this.graphDatabaseService.beginTx()) {
+			Person p = this.personRepository.findOne(personId);
+			this.person = p;
+			List<Dibs> forumdibs =
+					this.connectionService.findDibsOn(p);
 
-		final int fsize = 4;
-		List<Long> fpicked = new ArrayList<Long>(fsize);
-		for (Dibs f : forumdibs) {
-			if ( log.isTraceEnabled() ) {
-				log.trace(f.toString());
+			if (log.isTraceEnabled()) {
+				log.trace("BEGIN EDIT FOR " + p.getName());
 			}
-			fpicked.add(f.getForum().nodeId);
+
+			final int fsize = 4;
+			List<Long> fpicked = new ArrayList<Long>(fsize);
+			for (Dibs f : forumdibs) {
+				if (log.isTraceEnabled()) {
+					log.trace(f.toString());
+				}
+				fpicked.add(f.getForum().nodeId);
+			}
+			int ssz = fpicked.size();
+			this.setChoices(fpicked.toArray(new Long[ssz]));
+			trans.success();
 		}
-		int ssz = fpicked.size();
-		this.setChoices(fpicked.toArray(new Long[ssz]));
 	}
 
 	/**

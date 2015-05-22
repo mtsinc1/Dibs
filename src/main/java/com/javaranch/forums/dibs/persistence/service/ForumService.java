@@ -96,7 +96,7 @@ public class ForumService {
 	}
 
 	/**
-	 * Save a list of Dibs. Assumes no existing list.
+	 * Save a list of Dibs. Replaces existing list, if any.
 	 * @param personId Person placing Dibs
 	 * @param idList the Forum IDs to place Dibs on.
 	 */
@@ -161,15 +161,6 @@ public class ForumService {
 		}
 
 		person.clearDibs();
-//		
-//		Set<Forum> dibsList = forumRepository.findDibsOn(person);
-//		for (Forum f : dibsList) {
-//			f.removeBidder(person);
-//			f = this.forumRepository.save(f);
-//		}
-//
-////		person.getDibsList().clear();
-		//this.personRepository.save(person);
 	}
 
 	// ===

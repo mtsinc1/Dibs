@@ -38,7 +38,7 @@ public class Person implements java.io.Serializable {
 //	@RelatedTo(direction = Direction.BOTH, type = Dibs.CONNECT_MODERATES, elementClass = Forum.class)
 //	Set<Forum> moderatesList;
 
-	@RelatedToVia
+	@RelatedToVia(type=Dibs.CONNECT_DIBS)
 	Set<Dibs> dibsList = new HashSet<Dibs>();
 
 	/**
@@ -80,7 +80,7 @@ public class Person implements java.io.Serializable {
 	/**
 	 * @return the dibsList
 	 */
-	public Iterable<Dibs> getDibsList() {
+	public Set<Dibs> getDibsList() {
 		return dibsList;
 	}
 

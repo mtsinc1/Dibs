@@ -26,10 +26,10 @@ public interface ForumRepository extends GraphRepository<Forum> {
 	@Query(value="MATCH (n:Forum) WHERE (:Person)-[:dibs_on]->(n:Forum) return n")
 	public List<Forum> findAllClaimed();
 
-	@Query(value="MATCH (n:Forum) WHERE NOT (n)-[:DIBS_ON]->() return n")
+	@Query(value="MATCH (n:Forum) WHERE NOT (:Person)-[:dibs_on]->(n) return n ORDER BY n.name")
 	public List<Forum> findAllUnclaimed();
 
-	@Query(value="MATCH (n:Forum) WHERE (n)-[:DIBS_ON]->({0}) return n")
+	@Query(value="MATCH (n:Forum) WHERE ({0})-[:dibs_on]->(n) return n")
 	public Set<Forum> findDibsOn(Person person);
 
 	/**

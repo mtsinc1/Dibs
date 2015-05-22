@@ -6,8 +6,15 @@ import javax.faces.application.FacesMessage;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 
+import org.apache.log4j.Logger;
+
 public class JSFUtils {
 
+	/* Logger */
+	
+	final private static Logger log =
+			Logger.getLogger(JSFUtils.class);
+	
 	private static ExternalContext getExternalContext() {
 		FacesContext facesContext =
 				FacesContext.getCurrentInstance();
@@ -62,6 +69,15 @@ public class JSFUtils {
 						string, string);
 		FacesContext.getCurrentInstance().addMessage(null,
 			message);
+	}
+
+	public static void addErrorMessage(String string, Exception e) {
+		if ( e instanceof NullPointerException ) {
+			addErrorMessage("Internal logic error (NullPointerException)");
+		} else {
+			addErrorMessage(string);
+		}
+		log.error(string, e);
 	}
 
 }

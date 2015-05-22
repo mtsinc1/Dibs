@@ -26,6 +26,7 @@ import com.javaranch.forums.dibs.persistence.model.Forum;
 import com.javaranch.forums.dibs.persistence.model.Person;
 import com.javaranch.forums.dibs.persistence.repository.ForumRepository;
 import com.javaranch.forums.dibs.persistence.repository.PersonRepository;
+import com.javaranch.forums.dibs.persistence.service.ConnectionService;
 import com.javaranch.forums.dibs.persistence.service.DBLoader;
 import com.javaranch.forums.dibs.persistence.service.RescanningLineNumberReader;
 
@@ -46,10 +47,10 @@ public class AdminMainBean implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	/* Logger */
-	
-	final private static Logger log =
-			Logger.getLogger(AdminMainBean.class);
-	
+
+	final private static Logger log = Logger
+		.getLogger(AdminMainBean.class);
+
 	// --
 	@ManagedProperty("#{graphDatabaseService}")
 	private transient GraphDatabaseService graphDatabaseService;
@@ -74,6 +75,18 @@ public class AdminMainBean implements Serializable {
 	public void setDibsSelectorBean(
 			DibsSelectorBean dibsSelectorBean) {
 		this.dibsSelectorBean = dibsSelectorBean;
+	}
+
+	// --
+	@ManagedProperty("#{connectionService}")
+	private transient ConnectionService connectionService;
+
+	/**
+	 * @param service
+	 *            the ConnectionService to set
+	 */
+	public void setConnectionService(ConnectionService service) {
+		this.connectionService = service;
 	}
 
 	// --
@@ -136,6 +149,16 @@ public class AdminMainBean implements Serializable {
 		this.personList = getPersonList();
 	}
 
+	
+	//===
+	/**
+	 * Reset Personlist, causing next inquiry to construct
+	 * a fresh one.
+	 */
+	private void clearPersonList() {
+		this.personList = null;
+	}
+	
 	public List<SelectItem> getPersonList() {
 		if (this.personList == null) {
 			this.personList = buildPersonList();
@@ -146,7 +169,7 @@ public class AdminMainBean implements Serializable {
 	private List<SelectItem> buildPersonList() {
 		List<SelectItem> plist = new ArrayList<SelectItem>();
 
-		//dbLoader.dumpLoad("Build new list");
+		// dbLoader.dumpLoad("Build new list");
 
 		Transaction trans = graphDatabaseService.beginTx();
 		Result<Person> persons = personRepository.findAll();
@@ -155,9 +178,9 @@ public class AdminMainBean implements Serializable {
 				.getName()));
 		}
 		trans.close();
-		log.debug(plist.size() +" entries loaded.");
-		
-		//dbLoader.dumpLoad("Build completed.");
+		log.debug(plist.size() + " entries loaded.");
+
+		// dbLoader.dumpLoad("Build completed.");
 
 		return plist;
 	}
@@ -171,6 +194,63 @@ public class AdminMainBean implements Serializable {
 			Dibs.CONNECT_DIBS);
 		return "/dibselect";
 	}
+
+	/**
+	 * Action for "Clear Database" button. Removes ALL records
+	 * from the database.
+	 * 
+	 * @return <code>null</code> to re-display the admin page.
+	 * @category action
+	 */
+	public String doClearDatabase() {
+		try {
+			this.connectionService.clearDatabase();
+			this.clearPersonList();
+			JSFUtils
+				.addInfoMessage("Database has been cleared.");
+		} catch (Exception e) {
+			JSFUtils.addErrorMessage("Operation Failed.", e);
+		}
+		return null;
+	}
+
+	/**
+	 * Action for "Reset Dibs" button. Removes ALL records Dibs
+	 * from the database.
+	 * 
+	 * @return <code>null</code> to re-display the admin page.
+	 * @category action
+	 */
+	public String doClearDibs() {
+		try {
+			this.connectionService.clearAllDibs();
+			JSFUtils.addInfoMessage("Dibs have been cleared.");
+		} catch (Exception e) {
+			JSFUtils.addErrorMessage("Operation Failed.", e);
+		}
+		return null;
+	}
+
+	/**
+	 * Action for "Restore Moderations" button. Removes ALL
+	 * current Dibs and sets new Dibs based on current
+	 * Moderators.
+	 * 
+	 * @return <code>null</code> to re-display the admin page.
+	 * @category action
+	 */
+	public String doRestoreModerations() {
+		try {
+			this.connectionService.setDibsToModerators();
+			JSFUtils
+				.addInfoMessage("Dibs are now same as current Moderators.");
+		} catch (Exception e) {
+			JSFUtils.addErrorMessage("Operation Failed.", e);
+		}
+		return null;
+	}
+
+	// === Navigation ===
 
 	public String goPeople() {
 		return "personList";
@@ -206,8 +286,7 @@ public class AdminMainBean implements Serializable {
 	public String[] getPeople() {
 		// https://jira.spring.io/browse/DATAGRAPH-531
 		Transaction trans = graphDatabaseService.beginTx();
-		Result<Person> people =
-				this.personRepository.findAll();
+		Result<Person> people = this.personRepository.findAll();
 		ArrayList<String> l = new ArrayList<String>(100);
 		for (Person p : people) {
 			l.add(p.getName());
@@ -258,10 +337,10 @@ public class AdminMainBean implements Serializable {
 
 		dbLoader.load(rdr);
 
-		//dbLoader.dumpLoad("Back in admin");
+		// dbLoader.dumpLoad("Back in admin");
 
 		this.personList = null;
-		//dbLoader.dumpLoad("Model reset");
-		
+		// dbLoader.dumpLoad("Model reset");
+
 	}
 }

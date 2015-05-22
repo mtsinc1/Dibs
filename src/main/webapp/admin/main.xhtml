@@ -63,7 +63,7 @@
                             clearAllLabel="Deselect File"
                             id="ctlFileUpload"
                             acceptedTypes="yml, yaml"
-                            listHeight="40"
+                            listHeight="50"
                             ontyperejected="alert('Only YAML files are accepted');"
                             maxFilesQuantity="1"
                         >
@@ -73,6 +73,15 @@
                             />
                         </rich:fileUpload>
                     </h:panelGrid>
+                    <h:commandButton id="ctlClearDB" value="Clear Database..." immediate="true"
+                        onclick="return confirm('OK to delete all database records (CANNOT BE UNDONE)?');"
+                        action="#{adminMainBean.doClearDatabase}"/>
+                    <h:commandButton id="ctlRestoreMods" value="Set Moderators..." immediate="true"
+                        onclick="return confirm('OK to change all Dibs (CANNOT BE UNDONE)?');"
+                        action="#{adminMainBean.doRestoreModerations}"/>
+                    <h:commandButton id="ctlClearDibs" value="Reset Dibs..." immediate="true"
+                        onclick="return confirm('OK to cremove all Dibs (CANNOT BE UNDONE)?');"
+                        action="#{adminMainBean.doClearDibs}"/>
                     <h:commandButton value="Exit Admin" immediate="true"
                         action="main"/>
                 </h:form>

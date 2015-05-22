@@ -85,15 +85,20 @@ public class ConnectionService {
 	 */
 	public void connect(long personId, String connectType,
 			long[] targetIds) {
-		Person p = this.personRepository.findOne(personId);
-		final int targetCount = targetIds.length;
-		Set<Forum> forums = new HashSet<Forum>();
-		for (int i = 0; i < targetCount; i++) {
-			Forum f = this.forumRepository.findOne(targetIds[i]);
-			forums.add(f);
+		try {
+			Person p = this.personRepository.findOne(personId);
+			final int targetCount = targetIds.length;
+			for (int i = 0; i < targetCount; i++) {
+				Forum f = this.forumRepository.findOne(targetIds[i]);
+				Dibs d = new Dibs(p, f, i);
+				this.dibsRepository.save(d);
+				p.getDibsList().add(d);
+			}
+			this.personRepository.save(p);
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-		//=<<< p.setDibsList(forums);
-		this.personRepository.save(p);
 	}
 
 	public void connect(long personId, String connectionType,
@@ -117,14 +122,25 @@ public class ConnectionService {
 	 */
 	public List<Dibs> findDibsOn(Person person) {
 		List<Dibs> dlist = 
-				this.dibsRepository.findDibsForPerson(person);
-//		for (Dibs dibs : iter) {
-//			dlist.add(dibs);
-//		}
+				personRepository.findDibs(person);
 		return dlist;
 	}
 
 	public void clearDibs(Person person) {
 		this.dibsRepository.clearDibs(person);
+	}
+
+	public void clearDatabase() {
+		this.dibsRepository.clearDatabase();
+	}
+
+	public void clearAllDibs() {
+		this.dibsRepository.clearAllDibs();
+	}
+
+	public void setDibsToModerators() {
+		// TODO Auto-generated method stub
+		clearAllDibs();
+		// TODO Render all Moderates nodes as Dibs nodes
 	}
 }

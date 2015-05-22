@@ -34,4 +34,17 @@ public interface DibsRepository extends GraphRepository<Dibs> {
 
 	@Query("START p=node({p}) MATCH (p)-[n:dibs_on]->(:Forum) DELETE n")
 	void clearDibs(@Param("p") Person person);
+
+	/**
+	 * Remove ALL records from database.
+	 */
+	@Query("MATCH (n) OPTIONAL MATCH (n)-[r]-() DELETE n, r")
+	void clearDatabase();
+
+
+	/**
+	 * Remove Dibs records from database.
+	 */
+	@Query("MATCH (n)-[r:dibs_on]-() DELETE r")
+	void clearAllDibs();
 }
