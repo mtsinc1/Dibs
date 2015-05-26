@@ -2,14 +2,11 @@ package com.javaranch.forums.dibs.backing;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.SessionScoped;
 import javax.faces.model.ListDataModel;
-
-import org.springframework.data.neo4j.conversion.Result;
 
 import com.javaranch.forums.dibs.persistence.model.Dibs;
 import com.javaranch.forums.dibs.persistence.model.Forum;
@@ -28,6 +25,8 @@ import com.javaranch.forums.dibs.persistence.service.ForumService;
 public class ReportBean {
 
 	// ===
+	private static final int EXPECTED_FORUM_COUNT = 45;
+	// ===
 	/**
 	 * Persistency service for Forum
 	 */
@@ -39,18 +38,18 @@ public class ReportBean {
 		this.forumService = service;
 	}
 
-	// --
-	@ManagedProperty("#{forumRepository}")
-	private transient ForumRepository forumRepository;
-
-	/**
-	 * @param forumRepository
-	 *            the forumRepository to set
-	 */
-	public void setForumRepository(
-			ForumRepository forumRepository) {
-		this.forumRepository = forumRepository;
-	}
+//	// --
+//	@ManagedProperty("#{forumRepository}")
+//	private transient ForumRepository forumRepository;
+//
+//	/**
+//	 * @param forumRepository
+//	 *            the forumRepository to set
+//	 */
+//	public void setForumRepository(
+//			ForumRepository forumRepository) {
+//		this.forumRepository = forumRepository;
+//	}
 
 	// ===
 	/**
@@ -316,7 +315,7 @@ public class ReportBean {
 
 	}
 
-	// $SECT
+	// $SECT Model
 	public List<DibsMaker> dibsModel;
 
 	/**
@@ -329,22 +328,44 @@ public class ReportBean {
 		return this.dibsModel;
 	}
 
+	/**
+	 * Construct the output model for Dibs. Used by export.
+	 * @return List of Dibs as a model.
+	 */
 	private List<DibsMaker> buildDibsModel() {
-		Result<Forum> forums = this.forumRepository.findAll();
-		ArrayList<DibsMaker> list = new ArrayList<DibsMaker>(45);
-		for (Forum forum : forums) {
-			DibsMaker maker = new DibsMaker();
-			maker.setForumName(forum.getName());
-			List<Dibs> dlist = forum.getDibsBidders();
-			for (Dibs dibs : dlist) {
-				maker.getDibs().add(dibs);
+		try {
+			List<Forum> forums =
+					this.forumService.findAllForums();
+			ArrayList<DibsMaker> list =
+					new ArrayList<DibsMaker>(
+							EXPECTED_FORUM_COUNT);
+			for (Forum forum : forums) {
+				DibsMaker maker = new DibsMaker();
+				maker.setForumName(forum.getName());
+				List<Dibs> dlist = forum.getDibsBidders();
+				for (Dibs dibs : dlist) {
+					maker.getDibs().add(dibs);
+				}
+				list.add(maker);
 			}
+			return list;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new ArrayList<DibsMaker>(0);
 		}
-		return list;
 	}
 
 	// ===
 	public class DibsMaker {
+		/* (non-Javadoc)
+		 * @see java.lang.Object#toString()
+		 */
+		@Override
+		public String toString() {
+			return "DibsMaker [forumName=" + forumName
+					+ ", dibs=" + dibs + "]";
+		}
+
 		private String forumName;
 
 		/**
@@ -379,5 +400,46 @@ public class ReportBean {
 		public void setDibs(List<Dibs> dibs) {
 			this.dibs = dibs;
 		}
+	}
+	
+	//$SECT Export
+	/**
+	 * Non-cached retrieval of current Person inventory
+	 * via the ForumService (there is no PersonService right now).
+	 * @return all Person's
+	 */
+	public List<Person> getPeople() {
+		return this.forumService.findAllPersons();
+	}
+	
+	/**
+	 * Non-cached retrieval of current Forum inventory
+	 * @return all Forum's
+	 */
+	public List<Forum> getForums() {
+		return this.forumService.findAllForums();
+	}
+	
+	/**
+	 * Non-cached retrieval of current Moderates relations.
+	 * @return all Moderations.
+	 */
+	public List<ClaimedForum> getModeratesList() {
+		List<Forum> flist = this.forumService.findAllClaimed();
+		ArrayList<ClaimedForum> olist =
+				new ArrayList<ClaimedForum>();
+		for (Forum forum : flist) {
+			List<Person> persons =
+					this.forumService.findModerators(forum);
+			if (persons.isEmpty()) {
+				continue;
+			}
+			ClaimedForum cf = new ClaimedForum(forum.name);
+			for (Person p : persons) {
+				cf.dibsList.add(p);
+			}
+			olist.add(cf);
+		}
+		return olist;
 	}
 }

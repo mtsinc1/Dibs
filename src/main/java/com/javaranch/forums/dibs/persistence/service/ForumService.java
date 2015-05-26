@@ -87,12 +87,19 @@ public class ForumService {
 	
 	// ===
 	public List<Forum> findAllForums() {
-		Result<Forum> forums = forumRepository.findAll();
-		ArrayList<Forum> list = new ArrayList<Forum>();
-		for (Forum forum : forums) {
-			list.add(forum);
+		try (Transaction trans =
+				this.graphDatabaseService.beginTx()) {
+			Result<Forum> forums = forumRepository.findAll();
+			ArrayList<Forum> list = new ArrayList<Forum>();
+			for (Forum forum : forums) {
+				list.add(forum);
+			}
+			trans.success();
+			return list;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new ArrayList<Forum>();
 		}
-		return list;
 	}
 
 	/**
@@ -195,10 +202,35 @@ public class ForumService {
 		return list;
 	}
 
+	/**
+	 * Find all forums which have AT LEAST one Dibs claim made
+	 * on them.
+	 * @return List of claimed forums.
+	 */
 	public List<Forum> findAllClaimed() {
 		final Transaction tx = this.graphDatabaseService.beginTx();
 		List<Forum> list = this.forumRepository.findAllClaimed();
 		tx.close();
 		return list;
+	}
+
+	/**
+	 * Find the current list of Moderators for the selected
+	 * Forum.
+	 * @param forum Forum to be queried
+	 * @return List of Persons who moderate the forum. May be empty.
+	 */
+	public List<Person> findModerators(Forum forum) {
+		try (final Transaction tx =
+				this.graphDatabaseService.beginTx()) {
+			List<Person> list =
+					this.forumRepository
+						.findAllModerators(forum);
+			tx.close();
+			return list;
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			throw new RuntimeException("Data Error", ex);
+		}
 	}
 }

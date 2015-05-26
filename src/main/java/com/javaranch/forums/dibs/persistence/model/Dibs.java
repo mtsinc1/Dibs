@@ -27,8 +27,22 @@ public class Dibs implements java.io.Serializable {
 	public Person person;
 	@Fetch @EndNode
 	public Forum forum;
-	int priority;
+	public int priority;
 	
+	/**
+	 * @return the priority
+	 */
+	public int getPriority() {
+		return priority;
+	}
+
+	/**
+	 * @param priority the priority to set
+	 */
+	public void setPriority(int priority) {
+		this.priority = priority;
+	}
+
 	public Dibs() {
 		
 	}

@@ -32,6 +32,11 @@ public interface ForumRepository extends GraphRepository<Forum> {
 	@Query(value="MATCH (n:Forum) WHERE ({0})-[:dibs_on]->(n) return n")
 	public Set<Forum> findDibsOn(Person person);
 
+
+	@Query(value="START f=node({f}) MATCH (p:Person)-[:moderates]->(f) return p")
+	public List<Person> findAllModerators(@Param("f") Forum f);
+	
+	
 	/**
 	 * Test to see if a Forum with this name already exists.
 	 * @param name Name of Forum to check. 
