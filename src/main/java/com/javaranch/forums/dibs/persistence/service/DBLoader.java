@@ -49,13 +49,11 @@ public class DBLoader implements Serializable {
 	 *   - person: Harriet Jones
 	 *     - butterfly collecting
 	 * moderates:
-	 *  forum:
-	 *   name: cookie baking
-	 *   persons:
-	 *      - John Doe
-	 *      - Harriet Jones
-	 *  forum:
-	 *     name: etc.
+	 *  forum: name
+	 *    - John Doe
+	 *    - Harriet Jones
+	 *  forum: name
+	 *    - person
      *      
 	 *  </code>
 	 * </pre>
@@ -356,40 +354,36 @@ public class DBLoader implements Serializable {
 				// line value is forum name ("- name"). Add if
 				// not present.
 				String[] v = CrudeYAMLParser.extractItem(line);
-				String name = v[0];
-				if (v[1] != null) {
-					// Forum name
-					String forumName = name;
-					int k = forumRepository.hasName(forumName);
+				String forumName = v[1];
+				if (forumName != null) {
 					Forum node = null;
-					if (k == 0) {
+					node =
+							forumRepository
+								.findByName(forumName);
+					if (node == null) {
 						node = new Forum(forumName);
-						forumRepository.save(node);
-					} else {
-						node =
-								forumRepository
-									.findByName(forumName);
+						node = forumRepository.save(node);
 					}
-
-					loadModerateUsers(forumName, rdr);
+					loadModerateUsers(node, rdr);
 				}
 			}
 		}
 		rdr.rescan();
 	}
 
-	private void loadModerateUsers(String forumName,
+	/**
+	 * Load list of currnt moderators for forum
+	 * 
+	 * @param forum
+	 *            Forum
+	 * @param rdr
+	 *            input data reader
+	 * @throws IOException
+	 */
+	private void loadModerateUsers(final Forum forum,
 			RescanningLineNumberReader rdr) throws IOException {
-		log.debug("Group " + forumName);
+		log.debug("Forum: " + forum.name);
 		String line;
-
-		Forum forum = forumRepository.findByName(forumName);
-		if (forum == null) {
-			log.warn("Forum was not previously defined. Defining forum '"
-					+ forumName + "'");
-			forum = new Forum(forumName);
-			forum = forumRepository.save(forum);
-		}
 
 		while ((line = rdr.readLine()) != null) {
 			if (CrudeYAMLParser.isItemLine(line)) {
