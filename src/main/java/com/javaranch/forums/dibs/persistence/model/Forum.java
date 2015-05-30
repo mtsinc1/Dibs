@@ -93,4 +93,8 @@ public class Forum implements java.io.Serializable {
 		this.moderators = moderators;
 	}
 
+	public void addModerator(Person p) {
+		this.moderators.add(p);
+	}
+
 }

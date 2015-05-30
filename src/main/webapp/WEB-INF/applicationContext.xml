@@ -20,11 +20,13 @@
     <context:component-scan
         base-package="com.javaranch.forums.dibs.persistence" />
 
-    <tx:annotation-driven
-        transaction-manager="neo4jTransactionManager" mode="aspectj"/>
-
     <jee:jndi-lookup id="databaseLocation"
         jndi-name="java:comp/env/neo4j/data" expected-type="java.lang.String" />
+
+<!-- 
+    <tx:annotation-driven
+        transaction-manager="neo4jTransactionManager" mode="aspectj" />
+ -->
  
     <neo4j:config storeDirectory="#{databaseLocation}"
         base-package="com.javaranch.forums.dibs.persistence.model" />

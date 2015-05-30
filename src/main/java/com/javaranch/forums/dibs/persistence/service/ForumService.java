@@ -233,4 +233,34 @@ public class ForumService {
 			throw new RuntimeException("Data Error", ex);
 		}
 	}
+
+	public int hasName(String name) {
+		try (final Transaction trans =
+				this.graphDatabaseService.beginTx()) {
+			return this.forumRepository.hasName(name);
+		}
+	}
+
+	public Forum save(Forum forum) {
+		try (final Transaction trans =
+				this.graphDatabaseService.beginTx()) {
+			forum = this.forumRepository.save(forum);
+			trans.success();
+			return forum;
+		}
+	}
+
+	public Forum findByName(String name) {
+		try (final Transaction trans =
+				this.graphDatabaseService.beginTx()) {
+			return this.forumRepository.findByName(name);
+		}
+	}
+
+	public void delete(Forum forum) {
+		try (final Transaction trans =
+				this.graphDatabaseService.beginTx()) {
+			this.forumRepository.delete(forum);
+		}
+	}
 }

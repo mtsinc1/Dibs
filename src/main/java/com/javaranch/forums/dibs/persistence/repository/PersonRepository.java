@@ -19,7 +19,6 @@ import com.javaranch.forums.dibs.persistence.model.Person;
  */
 
 @Repository
-@Transactional
 public interface PersonRepository extends GraphRepository<Person> {
 	
 	/**

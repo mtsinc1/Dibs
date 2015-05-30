@@ -2,8 +2,9 @@ package com.javaranch.forums.dibs.persistence.service;
 
 import java.io.IOException;
 import java.io.Serializable;
-
-import javax.faces.model.SelectItem;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -12,12 +13,12 @@ import org.neo4j.graphdb.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.conversion.Result;
 import org.springframework.stereotype.Repository;
+import org.yaml.snakeyaml.Yaml;
 
 import com.javaranch.forums.dibs.persistence.model.Dibs;
 import com.javaranch.forums.dibs.persistence.model.Forum;
 import com.javaranch.forums.dibs.persistence.model.Person;
-import com.javaranch.forums.dibs.persistence.repository.ForumRepository;
-import com.javaranch.forums.dibs.persistence.repository.PersonRepository;
+import com.javaranch.forums.dibs.persistence.repository.DibsRepository;
 
 /**
  * Database loading from flat storage.
@@ -54,7 +55,7 @@ public class DBLoader implements Serializable {
 	 *    - Harriet Jones
 	 *  forum: name
 	 *    - person
-     *      
+	 *      
 	 *  </code>
 	 * </pre>
 	 * <p/>
@@ -74,16 +75,32 @@ public class DBLoader implements Serializable {
 		.getLogger(DBLoader.class);
 	// --
 	@Autowired
-	private transient PersonRepository personRepository;
+	private transient PersonService personService;
+
+	/**
+	 * @param personService the personService to set
+	 */
+	public void setPersonService(PersonService personService) {
+		this.personService = personService;
+	}
+
+	// --
+	@Autowired
+	private transient DibsRepository dibsRepository;
+
+	/**
+	 * @param dibsRepository
+	 *            the dibsRepository to set
+	 */
+	public void setDibsRepository(DibsRepository dibsRepository) {
+		this.dibsRepository = dibsRepository;
+	}
 
 	// ---
 	@Autowired
 	private transient GraphDatabaseService graphDatabaseService;
 
-	/**
-	 * @param forumRepository
-	 *            the forumRepository to set
-	 */
+
 	public void setGraphDatabaseService(
 			GraphDatabaseService service) {
 		this.graphDatabaseService = service;
@@ -107,58 +124,39 @@ public class DBLoader implements Serializable {
 	 */
 	public void load(final RescanningLineNumberReader rdr)
 			throws IOException {
-		String line;
-		
-		Transaction trans = graphDatabaseService.beginTx();
-		while ((line = rdr.readLine()) != null) {
-			if (line.length() == 0) {
-				continue;
-			}
-			if (line.startsWith("---")) {
-				continue;
-			}
-			if (line.startsWith("persons:")) {
-				loadPersons(rdr);
-			} else if (line.startsWith("forums:")) {
-				loadForums(rdr);
-			} else if (line.startsWith("moderates:")) {
-				loadModerates(rdr);
-			} else if (line.startsWith("dibs:")) {
-				loadDibs(rdr);
-			} else {
-				log.warn("Invalid line in input: line "
-						+ rdr.getLineNumber());
-			}
-		}
-		dumpLoad("Last in-trans.");
-		trans.success();
-		trans.close();
-		//dumpLoad("Trans closed.");
+		Yaml yaml = new Yaml();
+		@SuppressWarnings("rawtypes")
+		Map map = (Map) yaml.load(rdr);
+		System.out.println(map);
+		loadPersons(map.get("persons"));
+		loadForums(map.get("forums"));
+		loadModerates(map.get("moderates"));
+		loadDibs(map.get("dibs"));
 	}
 
-	private void loadPersons(RescanningLineNumberReader rdr)
-			throws IOException {
+	private void loadPersons(Object o) throws IOException {
+
+		if ( o == null ) { // No data
+			return;
+		}
+		
+		@SuppressWarnings("unchecked")
+		List<String> r = (List<String>) o;
 
 		int personExists = 0;
 		int personNew = 0;
 
-		String line;
-		while (((line = rdr.readLine()) != null)
-				&& CrudeYAMLParser.isItemLine(line)) {
-			// line value is person name ("- name"). Add if
-			// not present.
-			String[] v = CrudeYAMLParser.extractItem(line);
-			String name = v[0];
+		for (String name : r) {
 			if (name.endsWith("-")) {
 				personDelete(name);
 			} else {
-				int k = personRepository.hasName(name);
+				int k = personService.hasName(name);
 				if (k == 0) {
 					if (log.isDebugEnabled()) {
 						log.debug("Adding " + name);
 					}
 					Person person = new Person(name);
-					personRepository.save(person);
+					personService.save(person);
 					personNew++;
 				} else {
 					if (log.isDebugEnabled()) {
@@ -168,17 +166,17 @@ public class DBLoader implements Serializable {
 				}
 			}
 		}
-		dumpLoad("Persons loaded.");
+		//dumpLoad("Persons loaded.");
 		log.info(personExists + " persons already existed.");
 		log.info(personNew + " persons added.");
 		log.info((personNew + personExists) + " persons total.");
-		rdr.rescan();
+		// rdr.rescan();
 	}
 
-	public void dumpLoad(String string) {
+	void dumpLoad(String string) {
 		// TODO Auto-generated method stub
-		log.warn(">>>DUMPLOAD: " +string);
-		Result<Person> persons = personRepository.findAll();
+		log.warn(">>>DUMPLOAD: " + string);
+		Result<Person> persons = personService.findAll();
 		for (Person person : persons) {
 			log.info("Person: " + person.getName());
 		}
@@ -194,9 +192,9 @@ public class DBLoader implements Serializable {
 	private void personDelete(String name) {
 		name = name.substring(0, name.length() - 1).trim();
 		log.info("Deleting person " + name);
-		Person p = personRepository.findByName(name);
+		Person p = personService.findByName(name);
 		if (p != null) {
-			personRepository.delete(p);
+			personService.delete(p);
 		}
 	}
 
@@ -204,40 +202,52 @@ public class DBLoader implements Serializable {
 	 * Load forums
 	 */
 	@Autowired
-	private ForumRepository forumRepository;
+	private ForumService forumService;
 
-	private void loadForums(RescanningLineNumberReader rdr)
-			throws IOException {
+	/**
+	 * @param forumService the forumService to set
+	 */
+	public void setForumService(ForumService forumService) {
+		this.forumService = forumService;
+	}
+
+	private void loadForums(Object o) throws IOException {
+
+		if ( o == null ) { // No data
+			return;
+		}
+
+		@SuppressWarnings("unchecked")
+		List<String> r = (List<String>) o;
+
 		int forumExists = 0;
 		int forumNew = 0;
 
-		String line;
-		while ((line = rdr.readLine()) != null) {
-			if (CrudeYAMLParser.isItemLine(line)) {
-				// line value is forum name ("- name"). Add if
-				// not present.
-				String[] v = CrudeYAMLParser.extractItem(line);
-				String name = v[0];
-				if (name.endsWith("-")) {
-					forumDelete(name);
-				} else {
-					int k = forumRepository.hasName(name);
-					if (k == 0) {
-						Forum node = new Forum(name);
-						forumRepository.save(node);
-						forumNew++;
-					} else {
-						forumExists++;
-					}
-				}
+		for (String name : r) {
+			if (name.endsWith("-")) {
+				forumDelete(name);
 			} else {
-				rdr.rescan();
-				break;
+				int k = forumService.hasName(name);
+				if (k == 0) {
+					if (log.isDebugEnabled()) {
+						log.debug("Adding " + name);
+					}
+					Forum forum = new Forum(name);
+					forumService.save(forum);
+					forumNew++;
+				} else {
+					if (log.isDebugEnabled()) {
+						log.debug("Exists " + name);
+					}
+					forumExists++;
+				}
 			}
 		}
+		//dumpLoad("forums loaded.");
 		log.info(forumExists + " forums already existed.");
 		log.info(forumNew + " forums added.");
 		log.info((forumNew + forumExists) + " forums total.");
+		// rdr.rescan();
 	}
 
 	// ===
@@ -250,71 +260,67 @@ public class DBLoader implements Serializable {
 	private void forumDelete(String name) {
 		name = name.substring(0, name.length() - 1).trim();
 		log.info("Deleting forum " + name);
-		Forum f = forumRepository.findByName(name);
+		Forum f = forumService.findByName(name);
 		if (f != null) {
-			forumRepository.delete(f);
+			forumService.delete(f);
 		}
 
 	}
 
-	//===
+	// ===
 	/**
 	 * Load person's Dibs requests, in priority order.
 	 * 
-	 * Form is:
-	 * <code>
-	 *   person:
-	 *     - forum
-	 *     - forum
-	 *     - forum
+	 * Form is: <code>
+	 * dibs:
+	 *    - forum1:
+	 *     - person1: priority
+	 *     - person2: priority
+	 *   - forum2:
 	 * </code>
-	 * @param rdr
+	 * 
+	 * Priority is the priority that the person has assigned to
+	 * this forum bid.
+	 * 
+	 * @param object
 	 * @throws IOException
 	 */
-	private void loadDibs(RescanningLineNumberReader rdr)
+	private void loadDibs(Object object)
 			throws IOException {
 		String line;
-		while ((line = rdr.readLine()) != null) {
-			if (CrudeYAMLParser.isItemLine(line)) {
-				// line value is forum name ("- name"). Add if
-				// not present.
-				String[] v = CrudeYAMLParser.extractItem(line);
-				String name = v[0];
-				// Name MUST be "person"
-				if (v[1] != null) {
-					// Person name
-					String personName = name;
-					int k = personRepository.hasName(personName);
-					Person node = null;
-					if (k == 0) {
-						node = new Person(personName);
-						personRepository.save(node);
-					} else {
-						node =
-								personRepository
-									.findByName(personName);
-					}
-					loadPersonDibs( node, rdr );
-				}
-			}
-		}
-		rdr.rescan();		
+//		while ((line = object.readLine()) != null) {
+//			if (CrudeYAMLParser.isItemLine(line)) {
+//				// line value is forum name ("- name"). Add if
+//				// not present.
+//				String[] v = CrudeYAMLParser.extractItem(line);
+//				String forumName = v[0];
+//				if (forumName != null) {
+//					Forum f =
+//							this.forumService
+//								.findByName(forumName);
+//					if (f == null) {
+//						log.error("Forum " + forumName
+//								+ " does not exist");
+//						// todo: create forum
+//					}
+//					loadPersonDibs(f, object);
+//					this.forumService.save(f);
+//				}
+//			}
+//		}
+//		object.rescan();
 	}
-	
+
 	/**
-	 * Load the forums that a person has placed Dibs on.
-	 * Does not return updated personNode.
+	 * Add person Dibs for Forum, with priority
 	 * 
-	 * @param personNode person for whom Dibs bids are being
-	 * collected.
-	 * @param rdr Input data source
-	 * @throws IOException 
+	 * @param forum
+	 * @param rdr
+	 *            Input data source
+	 * @throws IOException
 	 */
-	private void loadPersonDibs(Person personNode,
+	private void loadPersonDibs(final Forum forum,
 			RescanningLineNumberReader rdr) throws IOException {
-		// Clear old dibs, if any!
-		
-		personNode.clearDibs();
 		String line;
 		int priority = 0;
 		while ((line = rdr.readLine()) != null) {
@@ -322,57 +328,78 @@ public class DBLoader implements Serializable {
 				// line value is forum name ("- name"). Add if
 				// not present.
 				String[] v = CrudeYAMLParser.extractItem(line);
-				String name = v[0];
-				if (v[1] != null) {
-					// Forum name
-					String forumName = name;
-					int k = forumRepository.hasName(forumName);
-					Forum node = null;
-					if (k == 0) {
-						node = new Forum(forumName);
-						forumRepository.save(node);
-					} else {
-						node =
-								forumRepository
-									.findByName(forumName);
+				String personName = v[0];
+				int npri = Integer.parseInt(v[1]); // todo:
+													// valudate
+				if (personName != null) {
+					Person personNode =
+							this.personService
+								.findByName(personName);
+					if (personNode == null) {
+						log.error("Person " + personName
+								+ " does not exist.");
+						// todo: add person
 					}
-					Dibs dibs = new Dibs ( personNode, node, priority++);
+					Dibs dibs =
+							new Dibs(personNode, forum, npri);
 					personNode.addDibs(dibs);
-				}
-			}
-		}
-		personRepository.save(personNode);
-		rdr.rescan();		
-	}
-
-	//===
-	private void loadModerates(RescanningLineNumberReader rdr)
-			throws IOException {
-		String line;
-		while ((line = rdr.readLine()) != null) {
-			if (CrudeYAMLParser.isItemLine(line)) {
-				// line value is forum name ("- name"). Add if
-				// not present.
-				String[] v = CrudeYAMLParser.extractItem(line);
-				String forumName = v[1];
-				if (forumName != null) {
-					Forum node = null;
-					node =
-							forumRepository
-								.findByName(forumName);
-					if (node == null) {
-						node = new Forum(forumName);
-						node = forumRepository.save(node);
-					}
-					loadModerateUsers(node, rdr);
+					this.dibsRepository.save(dibs);
+					this.personService.save(personNode);
 				}
 			}
 		}
 		rdr.rescan();
 	}
 
+	// ===
+	private void loadModerates(Object object) throws IOException {
+
+
+			@SuppressWarnings("rawtypes")
+			Map forumMap = (Map) object;
+			for (Object key : forumMap.keySet()) {
+				String forumName = (String) key;
+				Forum forum = null;
+				forum = forumService.findByName(forumName);
+				if (forum == null) {
+					forum = new Forum(forumName);
+					forum = forumService.save(forum);
+				}
+
+				System.out.println("KEY=" + key);
+				@SuppressWarnings("unchecked")
+				List<String> moderators =
+						(List<String>) forumMap.get(key);
+				for (String name : moderators) {
+					System.out.println("MODERATOR=" + name);
+					Person p = findPerson(name);
+					try (final Transaction trans =
+							this.graphDatabaseService.beginTx()) {					
+						forum.addModerator(p);
+						trans.success();
+					}
+				}
+				this.forumService.save(forum);
+			}
+	}
+
 	/**
-	 * Load list of currnt moderators for forum
+	 * Locate a Person. Create Person record if it doesn't already
+	 * exist.
+	 * @param name
+	 * @return
+	 */
+	private Person findPerson(String name) {
+		Person p = personService.findByName(name);
+		if (p == null) {
+			p = new Person(name);
+			p = this.personService.save(p);
+		}
+		return p;
+	}
+
+	/**
+	 * Load list of current moderators for forum
 	 * 
 	 * @param forum
 	 *            Forum
@@ -398,7 +425,7 @@ public class DBLoader implements Serializable {
 						forumRemove(forum, name);
 					} else {
 						Person p =
-								personRepository
+								personService
 									.findByName(name);
 						if (p == null) {
 							p = new Person(name);
@@ -414,7 +441,7 @@ public class DBLoader implements Serializable {
 			}
 		}
 		// Update persistent
-		forumRepository.save(forum);
+		forumService.save(forum);
 	}
 
 	/**
@@ -426,7 +453,7 @@ public class DBLoader implements Serializable {
 	private void forumRemove(Forum forum, String name) {
 		name = name.substring(0, name.length() - 1).trim();
 
-		Person p = personRepository.findByName(name);
+		Person p = personService.findByName(name);
 		if (p != null) {
 			forum.getModerators().remove(p);
 		}
