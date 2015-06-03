@@ -1,10 +1,12 @@
 package com.javaranch.forums.dibs.persistence.repository;
 
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.data.neo4j.annotation.Query;
 import org.springframework.data.neo4j.repository.GraphRepository;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.javaranch.forums.dibs.persistence.model.Dibs;
@@ -18,6 +20,7 @@ import com.javaranch.forums.dibs.persistence.model.Person;
  * 
  * @TestedBy DibsRepositoryTest
  */
+@Repository
 @Transactional
 public interface DibsRepository extends GraphRepository<Dibs> {
 
@@ -47,4 +50,15 @@ public interface DibsRepository extends GraphRepository<Dibs> {
 	 */
 	@Query("MATCH (n)-[r:dibs_on]-() DELETE r")
 	void clearAllDibs();
+
+
+	/**
+	 * Check for Dibs already existing
+	 * @param person
+	 * @param forum
+	 * @return
+	 */
+	@Query("MATCH (p:Person)-[d:dibs_on]->(f:Forum) WHERE id(p)={p} AND id(f)={f} RETURN d")
+	Set<Dibs> findRelation(@Param("p") Person person,
+			@Param("f") Forum forum);
 }

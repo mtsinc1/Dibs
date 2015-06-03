@@ -34,7 +34,7 @@ public interface ForumRepository extends GraphRepository<Forum> {
 
 
 	@Query(value="START f=node({f}) MATCH (p:Person)-[:moderates]->(f) return p")
-	public List<Person> findAllModerators(@Param("f") Forum f);
+	public List<Person> findModerators(@Param("f") Forum f);
 	
 	
 	/**

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.neo4j.graphdb.Direction;
 import org.springframework.data.neo4j.annotation.Fetch;
 import org.springframework.data.neo4j.annotation.GraphId;
 import org.springframework.data.neo4j.annotation.Indexed;
@@ -76,7 +77,7 @@ public class Forum implements java.io.Serializable {
 	}
 	
 	//--
-	@RelatedTo(type="MODERATES")
+	@RelatedTo(type=Dibs.CONNECT_MODERATES,direction = Direction.INCOMING)
 	Set<Person> moderators;
 
 	/**

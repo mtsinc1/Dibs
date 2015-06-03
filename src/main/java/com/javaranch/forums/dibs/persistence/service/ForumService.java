@@ -225,7 +225,7 @@ public class ForumService {
 				this.graphDatabaseService.beginTx()) {
 			List<Person> list =
 					this.forumRepository
-						.findAllModerators(forum);
+						.findModerators(forum);
 			tx.close();
 			return list;
 		} catch (Exception ex) {
