@@ -1,5 +1,14 @@
 # CodeRanch Dibs utility.
 
+## Status
+
+This project is in late development. Some features remain to
+be implemented. Also, public demos, *etc.* are normally hosted
+on the mousetech.com websites, but the mousetech.com domain
+is presently offline until a certain well-known telecommunications
+service sees fit to plug back in certain connections they should
+have never unplugged.
+
 ## Explanation
 
 The CodeRanch/JavaRanch Big Moose Saloon is an Internet message
