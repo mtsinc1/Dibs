@@ -28,7 +28,6 @@ import com.javaranch.forums.dibs.persistence.repository.ForumRepository;
 import com.javaranch.forums.dibs.persistence.repository.PersonRepository;
 import com.javaranch.forums.dibs.persistence.service.ConnectionService;
 import com.javaranch.forums.dibs.persistence.service.DBLoader;
-import com.javaranch.forums.dibs.persistence.service.RescanningLineNumberReader;
 
 /**
  * Main control panel backing bean.
@@ -206,8 +205,11 @@ public class AdminMainBean implements Serializable {
 		try {
 			this.connectionService.clearDatabase();
 			this.clearPersonList();
+			
+			final String msg = "Database has been cleared.";
 			JSFUtils
-				.addInfoMessage("Database has been cleared.");
+				.addInfoMessage(msg);
+			log.warn(msg);
 		} catch (Exception e) {
 			JSFUtils.addErrorMessage("Operation Failed.", e);
 		}
@@ -215,7 +217,7 @@ public class AdminMainBean implements Serializable {
 	}
 
 	/**
-	 * Action for "Reset Dibs" button. Removes ALL records Dibs
+	 * Action for "Reset Dibs" button. Removes ALL Dibs records
 	 * from the database.
 	 * 
 	 * @return <code>null</code> to re-display the admin page.
@@ -224,7 +226,9 @@ public class AdminMainBean implements Serializable {
 	public String doClearDibs() {
 		try {
 			this.connectionService.clearAllDibs();
-			JSFUtils.addInfoMessage("Dibs have been cleared.");
+			final String msg = "All Dibs have been cleared.";
+			JSFUtils.addInfoMessage(msg);
+			log.warn(msg);
 		} catch (Exception e) {
 			JSFUtils.addErrorMessage("Operation Failed.", e);
 		}
@@ -332,10 +336,8 @@ public class AdminMainBean implements Serializable {
 		InputStream istr = item.getInputStream();
 		InputStreamReader r0 = new InputStreamReader(istr);
 		LineNumberReader lnr = new LineNumberReader(r0);
-		RescanningLineNumberReader rdr =
-				new RescanningLineNumberReader(lnr);
 
-		dbLoader.load(rdr);
+		dbLoader.load(lnr);
 
 		// dbLoader.dumpLoad("Back in admin");
 

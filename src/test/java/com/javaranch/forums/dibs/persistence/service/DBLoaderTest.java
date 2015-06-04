@@ -27,19 +27,19 @@ import com.javaranch.forums.dibs.persistence.repository.PersonRepository;
  * @author timh
  * @since Apr 2, 2015
  * 
- * TODO: add test of forum removal of moderator
+ *        TODO: add test of forum removal of moderator
  * 
- * TODO: add test for deletion of person in forum
+ *        TODO: add test for deletion of person in forum
  */
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "/testApplicationContext.xml" })
 public class DBLoaderTest {
 
 	/* Logger */
-	
-	final private static Logger log =
-			Logger.getLogger(DBLoaderTest.class);
-	
+
+	final private static Logger log = Logger
+		.getLogger(DBLoaderTest.class);
+
 	static final String DATA_DIR = "src/test/resources";
 
 	@Autowired
@@ -50,7 +50,7 @@ public class DBLoaderTest {
 
 	@Autowired
 	private ForumRepository forumRepository;
-	
+
 	@Autowired
 	private transient GraphDatabaseService graphDatabaseService;
 
@@ -63,7 +63,7 @@ public class DBLoaderTest {
 		long nforums = forumRepository.count();
 		assertEquals(0, nforums);
 
-		RescanningLineNumberReader rdr = buildReader("test.yml");
+		LineNumberReader rdr = buildReader("test.yml");
 		dbLoader.load(rdr);
 		rdr.close();
 
@@ -73,7 +73,6 @@ public class DBLoaderTest {
 		nforums = forumRepository.count();
 		assertEquals(4, nforums);
 
-		
 		Transaction trans = this.graphDatabaseService.beginTx();
 		{
 			Person p1 =
@@ -92,9 +91,9 @@ public class DBLoaderTest {
 					personRepository
 						.findByName("Fred Feebleberger");
 			assertNull(p2);
-			
+
 			npersons = personRepository.count();
-			assertEquals(3, npersons);			
+			assertEquals(3, npersons);
 		}
 		trans.close();
 	}
@@ -104,14 +103,12 @@ public class DBLoaderTest {
 	 * @return
 	 * @throws FileNotFoundException
 	 */
-	private RescanningLineNumberReader buildReader(
-			String yamlfile) throws FileNotFoundException {
+	private LineNumberReader buildReader(String yamlfile)
+			throws FileNotFoundException {
 		File f = new File(DATA_DIR, yamlfile);
 		log.info("FILE='" + f.getAbsolutePath() + "'");
 		FileReader frdr = new FileReader(f);
 		LineNumberReader lnr = new LineNumberReader(frdr);
-		RescanningLineNumberReader rdr =
-				new RescanningLineNumberReader(lnr);
-		return rdr;
+		return lnr;
 	}
 }

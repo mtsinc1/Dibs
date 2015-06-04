@@ -11,7 +11,6 @@ import javax.faces.model.ListDataModel;
 import com.javaranch.forums.dibs.persistence.model.Dibs;
 import com.javaranch.forums.dibs.persistence.model.Forum;
 import com.javaranch.forums.dibs.persistence.model.Person;
-import com.javaranch.forums.dibs.persistence.repository.ForumRepository;
 import com.javaranch.forums.dibs.persistence.service.ForumService;
 
 /**
@@ -37,19 +36,6 @@ public class ReportBean {
 	public void setForumService(ForumService service) {
 		this.forumService = service;
 	}
-
-//	// --
-//	@ManagedProperty("#{forumRepository}")
-//	private transient ForumRepository forumRepository;
-//
-//	/**
-//	 * @param forumRepository
-//	 *            the forumRepository to set
-//	 */
-//	public void setForumRepository(
-//			ForumRepository forumRepository) {
-//		this.forumRepository = forumRepository;
-//	}
 
 	// ===
 	/**
@@ -157,6 +143,7 @@ public class ReportBean {
 				new ArrayList<ClaimedForum>();
 		for (Forum forum : flist) {
 			ClaimedForum cf = new ClaimedForum(forum.name);
+			cf.setNumModerators(forum.getNumModerators());
 			List<Dibs> dibs = forum.getDibsBidders();
 			for (Dibs d : dibs) {
 				cf.dibsList.add(d.getPerson());
@@ -169,6 +156,7 @@ public class ReportBean {
 	public class ClaimedForum {
 		private String name;
 		private List<Person> dibsList = null;
+		private int numModerators = 1;
 
 		/**
 		 * Constructor.
@@ -206,6 +194,21 @@ public class ReportBean {
 			this.name = name;
 		}
 
+
+		/**
+		 * @return the numModerators
+		 */
+		public int getNumModerators() {
+			return numModerators;
+		}
+
+		/**
+		 * @param numModerators the numModerators to set
+		 */
+		public void setNumModerators(int numModerators) {
+			this.numModerators = numModerators;
+		}
+		
 		/**
 		 * @return the dibsList
 		 */

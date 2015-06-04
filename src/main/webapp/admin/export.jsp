@@ -5,7 +5,7 @@
 persons:<c:forEach var="item" items="${reportBean.people}">
    - ${item.name}</c:forEach>
 forums:<c:forEach var="item" items="${reportBean.forums}">
-   - ${item.name}</c:forEach>
+   - ${item.name}: ${item.numModerators}</c:forEach>
 moderates:<c:forEach var="item" items="${reportBean.moderatesList}">
    ${item.name}:
      <c:forEach var="person" items="${item.dibsList}">- ${person.name}

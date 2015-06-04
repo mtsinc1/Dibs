@@ -49,8 +49,32 @@ public class Forum implements java.io.Serializable {
 		this.name = name;
 	}
 
+	// ---
+	/**
+	 * Maximum allowable number of moderators for this forum.
+	 * Default value is 1.
+	 */
+	public int numModerators = 1;
+	
+	/**
+	 * @return the numModerators
+	 */
+	public int getNumModerators() {
+		return numModerators;
+	}
+
+	/**
+	 * @param numModerators the numModerators to set
+	 */
+	public void setNumModerators(int numModerators) {
+		this.numModerators = numModerators;
+	}
+
+	
+	//===
+	
 	public Forum() {
-		this.name = "ACKForum";
+		this.name = "ACKForum"; // Placeholder for debugging.
 	}
 	
 	public Forum(String name) {

@@ -1,6 +1,7 @@
 package com.javaranch.forums.dibs.persistence.service;
 
 import java.io.IOException;
+import java.io.LineNumberReader;
 import java.io.Serializable;
 import java.util.Iterator;
 import java.util.List;
@@ -27,14 +28,19 @@ import com.javaranch.forums.dibs.persistence.repository.DibsRepository;
  * @author timh
  * @since Jun 4, 2014
  * @TestedBy DBLoaderTest
+ * 
+ *           TODO: Re-validate the database item delete
+ *           functions. They were originally written for
+ *           "brute-force" YAML parsing.
  */
 @Repository(value = "dbLoader")
 public class DBLoader implements Serializable {
+
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	
+
 	/**
 	 * Data format:
 	 * 
@@ -128,7 +134,7 @@ public class DBLoader implements Serializable {
 	 *            - Input line-oriented datastream.
 	 * @throws IOException
 	 */
-	public void load(final RescanningLineNumberReader rdr)
+	public void load(final LineNumberReader rdr)
 			throws IOException {
 		Yaml yaml = new Yaml();
 		@SuppressWarnings("rawtypes")
@@ -140,6 +146,13 @@ public class DBLoader implements Serializable {
 		loadDibs(map.get("dibs"));
 	}
 
+	/**
+	 * Load Person entries. Entry may be simple name or
+	 * "name: new", where "new" indicated that the Person
+	 * should be tagged as a rookie.
+	 * @param o List of Person entries digested from YAML.
+	 * @throws IOException
+	 */
 	private void loadPersons(Object o) throws IOException {
 
 		if (o == null) { // No data
@@ -147,26 +160,40 @@ public class DBLoader implements Serializable {
 		}
 
 		@SuppressWarnings("unchecked")
-		List<String> r = (List<String>) o;
+		List<Object> olist = (List<Object>) o;
 
 		int personExists = 0;
 		int personNew = 0;
 
-		for (String name : r) {
+		for (Object item : olist) {
+			NameValue nv = findNameValue(item);
+			final String name = nv.getName();
+
+			// TODO: add/update "rookie" status
+
 			if (name.endsWith("-")) {
 				personDelete(name);
 			} else {
-				int k = personService.hasName(name);
-				if (k == 0) {
+				Person person = this.personService.findByName(name);
+				if (person == null) {
 					if (log.isDebugEnabled()) {
 						log.debug("Adding " + name);
 					}
-					Person person = new Person(name);
+					person = new Person(name);
+					if ( nv.hasValue() ) {
+						if ( nv.getStringValue().equals("new")) {
+							person.setRookie(true);
+						}
+					}
 					personService.save(person);
 					personNew++;
 				} else {
 					if (log.isDebugEnabled()) {
 						log.debug("Exists " + name);
+					}
+					if (nv.getStringValue().equals("new")) {
+						person.setRookie(true);
+						personService.save(person);
 					}
 					personExists++;
 				}
@@ -176,7 +203,6 @@ public class DBLoader implements Serializable {
 		log.info(personExists + " persons already existed.");
 		log.info(personNew + " persons added.");
 		log.info((personNew + personExists) + " persons total.");
-		// rdr.rescan();
 	}
 
 	void dumpLoad(String string) {
@@ -218,34 +244,52 @@ public class DBLoader implements Serializable {
 		this.forumService = forumService;
 	}
 
+	/**
+	 * Load forums. Forum entry may be simple name or
+	 * "name: numModerators".
+	 * 
+	 * @param o
+	 *            List of Forums loaded from YAML.
+	 * @throws IOException
+	 */
 	private void loadForums(Object o) throws IOException {
 
 		if (o == null) { // No data
 			return;
 		}
 
-		@SuppressWarnings("unchecked")
-		List<String> r = (List<String>) o;
-
 		int forumExists = 0;
 		int forumNew = 0;
 
-		for (String name : r) {
+		@SuppressWarnings("unchecked")
+		List<Object> olist = (List<Object>) o;
+		for (Object item : olist) {
+			NameValue nv = findNameValue(item);
+
+			String name = nv.getName();
 			if (name.endsWith("-")) {
 				forumDelete(name);
 			} else {
-				int k = forumService.hasName(name);
-				if (k == 0) {
+				Forum forum = forumService.findByName(name);
+				if (forum == null) {
 					if (log.isDebugEnabled()) {
 						log.debug("Adding " + name);
 					}
-					Forum forum = new Forum(name);
+					forum = new Forum(name);
+					if (nv.hasValue()) {
+						forum.setNumModerators(nv.getIntValue());
+					}
 					forumService.save(forum);
 					forumNew++;
 				} else {
 					if (log.isDebugEnabled()) {
 						log.debug("Exists " + name);
 					}
+					if (nv.hasValue()) {
+						// update
+						forum.setNumModerators(nv.getIntValue());
+					}
+					forumService.save(forum);
 					forumExists++;
 				}
 			}
@@ -334,7 +378,6 @@ public class DBLoader implements Serializable {
 		}
 	}
 
-
 	// ===
 	/**
 	 * Load existing moderation information.
@@ -356,12 +399,12 @@ public class DBLoader implements Serializable {
 				forum = forumService.save(forum);
 			}
 
-			System.out.println("KEY=" + key);
+			// log.debug("KEY=" + key);
 			@SuppressWarnings("unchecked")
 			List<String> moderators =
 					(List<String>) forumMap.get(key);
 			for (String name : moderators) {
-				System.out.println("MODERATOR=" + name);
+				// log.debug("MODERATOR=" + name);
 				Person p = findPerson(name);
 				try (final Transaction trans =
 						this.graphDatabaseService.beginTx()) {
@@ -371,6 +414,39 @@ public class DBLoader implements Serializable {
 			}
 			this.forumService.save(forum);
 		}
+	}
+
+	// ===
+
+	@SuppressWarnings("rawtypes")
+	private NameValue findNameValue(Object o) {
+		if (o instanceof java.lang.String) {
+			NameValue nv = new NameValue((String) o);
+			return nv;
+		}
+
+		if (o instanceof java.util.Map) {
+			Map m = (Map) o;
+			Set keys = m.keySet();
+			if (keys.isEmpty()) {
+				throw new RuntimeException("No keys for object "
+						+ o);
+			}
+
+			if (keys.size() != 1) {
+				throw new RuntimeException(
+						"Object has more than one key/value "
+								+ o);
+			}
+
+			String name = (String) keys.iterator().next();
+			Object value = m.get(name);
+			NameValue nv = new NameValue(name, value);
+			return nv;
+		}
+
+		throw new RuntimeException("Unrecognized object type "
+				+ o);
 	}
 
 	// ===
@@ -443,7 +519,7 @@ public class DBLoader implements Serializable {
 			Set<Dibs> fd =
 					this.dibsRepository.findRelation(person,
 						forum);
-			System.out.println("OBK-" + fd);
+			log.debug("OBK-" + fd);
 			if (!fd.isEmpty()) {
 				Iterator<Dibs> iter = fd.iterator();
 				dibs = iter.next();

@@ -5,6 +5,13 @@ import javax.faces.event.PhaseListener;
 import javax.faces.event.PhaseEvent;
 import javax.faces.event.PhaseId;
 
+/**
+ * This may or may not serve a useful purpose. I need to refresh
+ * my memory.
+ * 
+ * @author timh
+ * @since Jun 4, 2015
+ */
 public class Plisten  implements PhaseListener {
 
 	       public PhaseId getPhaseId() { return PhaseId.RENDER_RESPONSE; }

@@ -11,6 +11,11 @@ import org.springframework.data.neo4j.annotation.RelatedToVia;
 
 @NodeEntity
 public class Person implements java.io.Serializable {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -56,26 +61,40 @@ public class Person implements java.io.Serializable {
 		this.name = name;
 	}
 
+	//---
+	/**
+	 * A rookie is a Person who has never previously moderated
+	 * a Forum. Such persons get first crack at forums when
+	 * Dibs are processed.
+	 */
+	public boolean rookie;
 	
+	/**
+	 * @return the rookie status
+	 */
+	public boolean isRookie() {
+		return rookie;
+	}
+
+	/**
+	 * @param rookie status 
+	 */
+	public void setRookie(boolean rookie) {
+		this.rookie = rookie;
+	}
+	
+	// ===
+	/**
+	 * Place Dibs on a forum.
+	 * @param f Forum to claim.
+	 * @param priority
+	 * @return Constructed Dibs entry
+	 */
 	public Dibs dibsOn(Forum f, int priority) {
 		Dibs d = new Dibs(this, f, priority);
 		this.dibsList.add(d);
 		return d;
 	}
-//	/**
-//	 * @return the moderatesList
-//	 */
-//	public Set<Forum> getModeratesList() {
-//		return moderatesList;
-//	}
-//
-//	/**
-//	 * @param moderatesList
-//	 *            the moderatesList to set
-//	 */
-//	public void setModeratesList(Set<Forum> moderatesList) {
-//		this.moderatesList = moderatesList;
-//	}
 
 	/**
 	 * @return the dibsList

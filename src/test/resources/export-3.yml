@@ -1,0 +1,34 @@
+---
+# Dibs Editor database export (YAML)
+persons:
+   - Ed Wynne
+   - Abe Sapiens
+   - Anton Wagner: new
+   - Fred Feebleberger
+forums:
+   - Paleo Diet: 0
+   - Stone Crocheting: 2
+   - Rock Arranging: 1
+   - DIY Demolition: 0
+moderates:
+   Stone Crocheting:
+     - Abe Sapiens
+     - Anton Wagner
+     
+   DIY Demolition:
+     - Fred Feebleberger
+     
+dibs:
+   Paleo Diet:
+     - Ed Wynne: 0
+     
+   Stone Crocheting:
+     - Abe Sapiens: 1
+     
+   Rock Arranging:
+     - Abe Sapiens: 0
+     - Fred Feebleberger: 0
+     
+   DIY Demolition:
+     - Fred Feebleberger: 1
+          
