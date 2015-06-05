@@ -139,7 +139,7 @@ public class DBLoader implements Serializable {
 		Yaml yaml = new Yaml();
 		@SuppressWarnings("rawtypes")
 		Map map = (Map) yaml.load(rdr);
-		System.out.println(map);
+		log.debug(map);
 		loadPersons(map.get("persons"));
 		loadForums(map.get("forums"));
 		loadModerates(map.get("moderates"));
@@ -191,7 +191,7 @@ public class DBLoader implements Serializable {
 					if (log.isDebugEnabled()) {
 						log.debug("Exists " + name);
 					}
-					if (nv.getStringValue().equals("new")) {
+					if ("new".equals(nv.getStringValue())) {
 						person.setRookie(true);
 						personService.save(person);
 					}
@@ -388,6 +388,10 @@ public class DBLoader implements Serializable {
 	 */
 	private void loadModerates(Object object) throws IOException {
 
+		if ( object == null ) {
+			return; // no data
+		}
+		
 		@SuppressWarnings("rawtypes")
 		Map forumMap = (Map) object;
 		for (Object key : forumMap.keySet()) {

@@ -63,12 +63,12 @@ public class DBLoaderTest {
 		long nforums = forumRepository.count();
 		assertEquals(0, nforums);
 
-		LineNumberReader rdr = buildReader("test.yml");
+		LineNumberReader rdr = buildReader("export-3.yml");
 		dbLoader.load(rdr);
 		rdr.close();
 
 		npersons = personRepository.count();
-		assertEquals(3, npersons);
+		assertEquals(4, npersons);
 
 		nforums = forumRepository.count();
 		assertEquals(4, nforums);

@@ -4,9 +4,9 @@ import static org.junit.Assert.*;
 
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.neo4j.conversion.Result;
@@ -22,6 +22,11 @@ import com.javaranch.forums.dibs.persistence.model.Person;
 @ContextConfiguration(locations={"/testApplicationContext.xml"})
 public class DibsRepositoryTest {
 
+	/* Logger */
+	
+	final private static Logger log =
+			Logger.getLogger(DibsRepositoryTest.class);
+	
 	private static final String ROCK_ARRANGING = "Rock Arranging";
 
 	@Autowired
@@ -80,24 +85,23 @@ public class DibsRepositoryTest {
 
 		
 		Result<Dibs> list = dibsRepository.findAll();
+		int listsize = 0;
 		for (Dibs zz: list) {
-			System.out
-				.println("DIBSLIST: " + zz);
+			log.debug("DIBSLIST: " + zz);
+			listsize++;
 		}
-//		assertNotNull(list);
-//		assertEquals(2, list.size());
+		assertNotNull(list);
+		assertEquals(8, listsize);
 		
 		Forum arrangers = forumRepository.findByName(ROCK_ARRANGING);
 		assertNotNull(arrangers);
 		
 		List<Dibs> alist = arrangers.getDibsBidders();
 		for ( Dibs d: alist ) {
-			System.out.println("ARRANGE: "+d);
+			log.debug("ARRANGE: "+d);
 			
 			Dibs u = dibsRepository.findOne(d.getNodeId());
-//			Node n = (Node) u;
-//			n.getR
-			System.out.println("LOOKUP: "+u);
+			log.debug("LOOKUP: "+u);
 		}
 	}
 }
