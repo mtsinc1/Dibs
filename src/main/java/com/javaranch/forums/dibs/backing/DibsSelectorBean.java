@@ -14,6 +14,7 @@ import org.apache.log4j.Logger;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
 
+import com.javaranch.forums.dibs.jsf.util.SelectionModel;
 import com.javaranch.forums.dibs.persistence.model.Dibs;
 import com.javaranch.forums.dibs.persistence.model.Forum;
 import com.javaranch.forums.dibs.persistence.model.Person;
@@ -131,17 +132,41 @@ public class DibsSelectorBean implements Serializable {
 		this.personRepository = personRepository;
 	}
 
-	// --
-	private List<SelectItem> forums;
-	private Long[] choices = {};
+	
+	//---
+	private List<SelectionModel> selectedForumList
+	= new ArrayList<SelectionModel>();
+	private List<SelectionModel> unselectedForumList
+	= new ArrayList<SelectionModel>();
+	
+	public List<SelectionModel> getSelectedForumList() {
+		return selectedForumList;
+	}
 
 	/**
-	 * @param choices
-	 *            the choices to set
+	 * @param selectedForumList the selectedForumList to set
 	 */
-	public void setChoices(Long[] choices) {
-		this.choices = choices;
+	public void setSelectedForumList(
+			List<SelectionModel> selectedForumList) {
+		this.selectedForumList = selectedForumList;
 	}
+
+	/**
+	 * @param unselectedForumList the unselectedForumList to set
+	 */
+	public void setUnselectedForumList(
+			List<SelectionModel> unselectedForumList) {
+		this.unselectedForumList = unselectedForumList;
+	}
+
+	public List<SelectionModel> getUnselectedForumList() {
+		return unselectedForumList;
+	}
+
+	
+	// --
+	private List<SelectItem> forums;
+
 
 	/**
 	 * Default Constructor.
@@ -155,27 +180,25 @@ public class DibsSelectorBean implements Serializable {
 		// Deprecated. Functions are now in "begin" method
 	}
 
-	public Long[] getChoices() {
-		return this.choices;
-	}
-
 	/**
 	 * Build Forum selection list. Presently done for every
 	 * beginEdit.
 	 * 
 	 * TODO: Move this to an APPLICATION scope backing bean
 	 * and only update it where forums are added/removed from
-	 * database!
+	 * database! Note that this dibsCounts are approximate, due
+	 * to potential multi-threading effects.
 	 * 
 	 * @return The list of Forum SelectItems
 	 */
-	private List<SelectItem> buildForumList() {
+	private List<SelectionModel> buildForumList() {
 		Transaction trans = this.graphDatabaseService.beginTx();
 		List<Forum> forums = forumService.findAllForums();
-		List<SelectItem> forumList =
-				new ArrayList<SelectItem>(forums.size());
+		List<SelectionModel> forumList =
+				new ArrayList<SelectionModel>(forums.size());
 		for (Forum f : forums) {
-			SelectItem si = new SelectItem(f.nodeId, f.name);
+			int fc = connectionService.getDibsCount(f);
+			SelectionModel si = new SelectionModel(f.nodeId, f.name, fc);
 			forumList.add(si);
 		}
 		trans.close();
@@ -214,7 +237,7 @@ public class DibsSelectorBean implements Serializable {
 			log.debug("Saving...update");
 
 			this.connectionService.connect(this.personId,
-				Dibs.CONNECT_DIBS, idList(this.choices));
+				Dibs.CONNECT_DIBS, idList(this.getSelectedForumList()));
 			log.debug("Saving...finishing");
 
 			trans.success();
@@ -235,12 +258,20 @@ public class DibsSelectorBean implements Serializable {
 	 * @see {@link #CONNECT_DIBS}, {@link #CONNECT_MODERATES}
 	 */
 	public void beginEdit(long personId, String connectionType) {
-		this.forums = buildForumList();
-		this.choices = new Long[] {};
+//		this.forums = buildForumList();
+		//TODO this.choices = new Long[] {};
 
 		this.personId = personId;
 		this.connectionType = connectionType;
+		
+		this.selectedForumList = new ArrayList<SelectionModel>();
+		this.unselectedForumList = new ArrayList<SelectionModel>();
 
+		
+//		this.unselectedForumList.add(new SelectionModel("101]fubar]4"));
+		this.unselectedForumList.addAll(buildForumList());
+
+		this.selectedForumList.clear();
 		try (Transaction trans =
 				this.graphDatabaseService.beginTx()) {
 			Person p = this.personRepository.findOne(personId);
@@ -252,33 +283,31 @@ public class DibsSelectorBean implements Serializable {
 				log.trace("BEGIN EDIT FOR " + p.getName());
 			}
 
-			final int fsize = 4;
-			List<Long> fpicked = new ArrayList<Long>(fsize);
-			for (Dibs f : forumdibs) {
+			for (Dibs dibs : forumdibs) {
 				if (log.isTraceEnabled()) {
-					log.trace(f.toString());
+					log.trace(dibs.toString());
 				}
-				fpicked.add(f.getForum().nodeId);
+				Forum fm = dibs.getForum(); 
+				SelectionModel sm = new SelectionModel(fm.nodeId, fm.getName(), 123);
+				selectedForumList.add(sm);
 			}
-			int ssz = fpicked.size();
-			this.setChoices(fpicked.toArray(new Long[ssz]));
 			trans.success();
 		}
 	}
-
+	
 	/**
 	 * Convert List of IDs in string form to an array in native
 	 * form.
 	 * 
-	 * @param stringIds
+	 * @param list
 	 *            IDs to convert
 	 * @return converted IDs
 	 */
-	private long[] idList(Long[] stringIds) {
-		long[] ids = new long[stringIds.length];
+	private long[] idList(List<SelectionModel> list) {
+		long[] ids = new long[list.size()];
 		int i = 0;
-		for (Long s : stringIds) {
-			long id = s;
+		for (SelectionModel s : list) {
+			long id = s.getId();
 			ids[i++] = id;
 		}
 		return ids;

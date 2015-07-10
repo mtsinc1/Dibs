@@ -61,4 +61,11 @@ public interface DibsRepository extends GraphRepository<Dibs> {
 	@Query("MATCH (p:Person)-[d:dibs_on]->(f:Forum) WHERE id(p)={p} AND id(f)={f} RETURN d")
 	Set<Dibs> findRelation(@Param("p") Person person,
 			@Param("f") Forum forum);
+
+	@Query("MATCH (p:Person)-[d:dibs_on]->(f:Forum) WHERE id(f)={f} RETURN d")
+	List<Dibs> findDibsForForum(@Param("f") Forum f);
+
+//	@Query("MATCH (p:Person)-[d:dibs_on]->(f:Forum) WHERE id(f)={f} RETURN LENGTH(d)")
+//	int findDibsCountForForum(@Param("f") Forum f); DOESN"T WORK BECUASE IS RELATIONSHIP
+
 }

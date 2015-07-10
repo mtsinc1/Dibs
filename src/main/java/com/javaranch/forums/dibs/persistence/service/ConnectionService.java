@@ -101,6 +101,10 @@ public class ConnectionService {
 		}
 	}
 
+//    beanFactory = WebApplicationContextUtils
+//            .getRequiredWebApplicationContext(getServletContext());
+
+	
 	public void connect(long personId, String connectionType,
 			List<Long> targetIds) {
 		Person p = this.personRepository.findOne(personId);
@@ -142,5 +146,16 @@ public class ConnectionService {
 		// TODO Auto-generated method stub
 		clearAllDibs();
 		// TODO Render all Moderates nodes as Dibs nodes
+	}
+
+	/**
+	 * Compute number of Persons with Dibs on a Forum
+	 * @param f Forum
+	 * @return count
+	 */
+	public int getDibsCount(Forum f) {
+		List<Dibs> list =this.dibsRepository.findDibsForForum(f);
+		return list.size();
+//		return this.dibsRepository.findDibsCountForForum(f);
 	}
 }

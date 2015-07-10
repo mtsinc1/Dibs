@@ -11,6 +11,7 @@
 </h:head>
 <h:body>
     <f:view>
+<h:messages/>
         <h:panelGrid columns="1">
             <h:panelGroup>
                 <h:form id="form1">
@@ -20,23 +21,30 @@
                 </f:facet>
                         <h:outputText value="Moderator: #{dibsSelectorBean.person.name}" />
                         <rich:pickList id="ctlShuttle"
-                            value="#{dibsSelectorBean.choices}"
+                            value="#{dibsSelectorBean.selectedForumList}"
                             sourceCaption="Forums"
                             targetCaption="Selected"
                             removeAllVisible="false"
                             copyAllVisible="false"
                             listWidth="170px" listHeight="100px"
                             orderable="true"
+                            var="item"
                         >
                             <f:selectItems
-                                value="#{dibsSelectorBean.forums}"
+                                value="#{dibsSelectorBean.unselectedForumList}"
                             />
                             <f:ajax event="change"
                                 action="#{dibsSelectorBean.listChanged}"
                             />
                             <f:converter
-                                converterId="arrayStringToLongConverter"
+                                converterId="dibsSelectionConverter"
                             />
+                            <rich:column width="60x">
+                                <h:outputText value="#{item.label}"/>
+                            </rich:column>
+                            <rich:column width="12px">
+                                <h:outputText value="#{item.dibsCount}"/>
+                            </rich:column>                            
                         </rich:pickList>
                         <h:outputText
                             value="Use the up/down arrows to indicate priorities, with most-wanted at the top."

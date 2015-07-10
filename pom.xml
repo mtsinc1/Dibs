@@ -322,13 +322,13 @@
     </dependencies>
 
     <properties>
-        <org.richfaces.bom.version>4.2.2.Final</org.richfaces.bom.version>
+        <org.richfaces.bom.version>4.3.7.Final</org.richfaces.bom.version>
         <org.springframework.version>4.0.6.RELEASE</org.springframework.version>
         <spring.neo4j.version>3.3.0.RELEASE</spring.neo4j.version>
         <!-- Note: build will whine if aspect version doesn't match JVM minor release number -->
         <aspect.version>1.8.5</aspect.version>
         <neo4j.version>2.2.0</neo4j.version>
-        <slf4j-version>1.7.6</slf4j-version>
+        <slf4j-version>1.7.12</slf4j-version>
         <version.nosqlunit>0.8.1</version.nosqlunit>
     </properties>
 </project>
