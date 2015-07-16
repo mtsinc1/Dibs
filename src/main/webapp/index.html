@@ -6,6 +6,31 @@
  <meta http-equiv=”refresh” content=”0;url=main.jsf”>
 </head>
 <body>
-    <a href="main.jsf">Select</a>
+    <h1>CodeRanch Dibs Reservation System</h1>
+    <p>
+    Every few months, The CodeRanch administrators select candidates
+    for Forum Moderator and through the forums open for bidding.
+    </p><p>
+    Historically, this process has been done via repeated updates
+    of a message thread. But that's hard to track in real time, so
+    I've developed this app. In addition to its ability to do useful
+    work, it's also my sandbox/showcase for the RichFaces Version 4
+    JSF extension tag collection and the Neo4j Nosql DBMS.
+    </p>
+    <h2>User Roles</h2>
+    <p>This app, when properly secured, supports 2 types of users.</p>
+    <p>The <b>Dibs User</b> interacts with the Dibs Selection screen.
+    This is a fairly simple screen with a shuttle control on it. Users
+    place Dibs by shuttling forums of interest to the "selected"
+    side of the control.
+    </p><p>
+    The <b>Dibs Administrator</b> has access to additional functions:
+    <ul>
+    <li>Reports and archiving the database to YAML-format text files.</li>
+    <li>Clearing and loading the database from YAML</li>
+    <li>Manual selection of a user ID to make Dibs selections for that user.</li>
+    </ul>
+   For demo purposes, everyone goes straight to the Admin screen.
+   This screen is located <a href="admin/main.jsf">Here</a>.
 </body>
 </html>

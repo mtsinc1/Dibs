@@ -11,7 +11,6 @@
 </h:head>
 <h:body>
     <f:view>
-<h:messages/>
         <h:panelGrid columns="1">
             <h:panelGroup>
                 <h:form id="form1">
@@ -48,6 +47,9 @@
                         </rich:pickList>
                         <h:outputText
                             value="Use the up/down arrows to indicate priorities, with most-wanted at the top."
+                        />
+                        <h:outputText
+                            value="Numbers next to forum names indicate the number of moderators allowed for that forum."
                         />
                         <h:messages />
                     </h:panelGrid>
